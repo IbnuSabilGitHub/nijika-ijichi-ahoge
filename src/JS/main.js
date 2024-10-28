@@ -1,18 +1,29 @@
-// Array untuk menyimpan semua partikel
-let particles = [];
-const maxSpeed = 2; // Kecepatan maksimum partikel
+// Array untuk menyimpan semua ahoge
 
-// Fungsi untuk membuat partikel baru
-function createParticle(
-  x,
-  y,
-  rotationSpeedRange = { min: 90, max: 360 }
-) {
-  const particle = document.createElement("img");
-  particle.classList.add("particle");
-  particle.src = "/public/assets/image/ahoge.webp";
-  document.body.appendChild(particle);
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
+// Setting Ahoge
+const ahoge = [];
+const ahogeCount = 0;
+const baseForce = 40;
+const damping = 0.98;
+const maxDistance = 800; // Jarak maksimum untuk gaya tarik
+
+let magnet = { x: null, y: null };
+let rotationSpeedRange = { min: 0, max: 5 };;
+
+const img = new Image();
+img.src = '/public/assets/image/ahoge.webp'; // Ganti dengan URL gambar Anda
+
+
+// let particles = [];
+const maxSpeed = 2; // Kecepatan maksimum ahoge
+
+// Fungsi untuk membuat ahoge baru
+function createAhoge(x, y) {
   // Pilih arah rotasi -180 atau 180 derajat
   const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
 
@@ -22,75 +33,182 @@ function createParticle(
     (Math.random() * (rotationSpeedRange.max - rotationSpeedRange.min) +
       rotationSpeedRange.min);
 
-  // Inisialisasi data partikel
-  const particleData = {
-    element: particle,
+  // Inisialisasi data ahoge
+  ahoge.push({
+    // Posisi ahoge secara acak
+    // x: Math.random() * canvas.width,
+    // y: Math.random() * canvas.height,
     x: x,
     y: y,
-    speedX: (Math.random() - 0.5) * maxSpeed,
-    speedY: (Math.random() - 0.5) * maxSpeed,
+
+
+    // Kecepatan ahoge secara acak
+    vx: (Math.random() - 0.5) * 4,
+    vy: (Math.random() - 0.5) * 4,
+
+    // Ukuran ahoge secara acak
+    size: Math.random() * 5 + 2,
+
     angle: 0,
     angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
-    rotation: 0, // Rotasi partikel
+    rotation: 0, // Rotasi ahoge
     rotationSpeed: randomRotationSpeed, // Kecepatan rotasi yang lebih lambat
     radius: Math.random() * 50 + 50, // Jarak untuk rotasi
     rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
-  };
-
-  particles.push(particleData);
+  });
 }
 
-// Fungsi untuk mengupdate posisi dan rotasi partikel
-function updateParticles() {
-  particles.forEach((p) => {
-    // Update posisi berdasarkan kecepatan
-    p.x += p.speedX;
-    p.y += p.speedY;
+function handleCollisions() {
+  for (let i = 0; i < ahoge.length; i++) {
+    for (let j = i + 1; j < ahoge.length; j++) {
+      const p1 = ahoge[i];
+      const p2 = ahoge[j];
 
-    // Update rotasi partikel
-    p.angle += p.angularSpeed;
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // Jika ahoge bertabrakan
+      if (distance < p1.size + p2.size) {
+        // Pantulkan ahoge
+        const angle = Math.atan2(dy, dx);
+        const sin = Math.sin(angle);
+        const cos = Math.cos(angle);
+
+        // Pisahkan ahoge sedikit
+        const overlap = (p1.size + p2.size - distance) / 2;
+        p1.x -= overlap * cos;
+        p1.y -= overlap * sin;
+        p2.x += overlap * cos;
+        p2.y += overlap * sin;
+
+        // Tukar kecepatan
+        const tempVx = p1.vx;
+        const tempVy = p1.vy;
+        p1.vx = p2.vx * damping;
+        p1.vy = p2.vy * damping;
+        p2.vx = tempVx * damping;
+        p2.vy = tempVy * damping;
+      }
+    }
+  }
+}
+
+function drawMagnet(x, y) {
+  magnet.x = x;
+  magnet.y = y;
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.arc(magnet.x, magnet.y, 10, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// function animateAhoge() {
+//   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//   handleCollisions();
+
+//   ahoge.forEach((p) => {
+//     // Jika magnet ada, tarik ahoge ke arah magnet
+//     if (magnet.x !== null && magnet.y !== null) {
+//       let dx = magnet.x - p.x;
+//       let dy = magnet.y - p.y;
+//       let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy));
+
+//       if (distance < maxDistance) {
+//         // Jarak maksimum untuk gaya magnet
+//         let force = Math.min(baseForce / distance, 0.1);
+//         let forceDirectionX = dx / distance;
+//         let forceDirectionY = dy / distance;
+//         // let speedMultiplier = Math.max(0.1, 1 - distance / maxDistance); // Mengurangi kecepatan berdasarkan jarak
+//         p.vx += forceDirectionX * force;
+//         p.vy += forceDirectionY * force;
+//         p.vx *= damping;
+//         p.vy *= damping;
+//       }
+//     }
+
+//     // Update posisi ahoge
+//     p.x += p.vx;
+//     p.y += p.vy;
+
+//     // Batasi ahoge dalam area canvas
+//     if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+//     if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+//     // Gambar ahoge
+//     ctx.beginPath();
+//     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+//     ctx.fillStyle = "white";
+//     ctx.fill();
+//   });
+
+//   requestAnimationFrame(animateParticles);
+// }
+
+// Fungsi untuk mengupdate posisi dan rotasi ahoge
+function animateAhoge() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  handleCollisions()
+
+  ahoge.forEach((p) => {
+    // Update posisi berdasarkan kecepatan
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Update rotasi ahoge
+    p.angle += p.angularSpeed || 0;
     p.x += Math.cos(p.angle) * p.radius * 0.01;
     p.y += Math.sin(p.angle) * p.radius * 0.01;
 
     // Update rotasi berputar dan melambat secara bertahap
     p.rotation += p.rotationSpeed;
-    p.rotationSpeed *= 1 - p.rotationSlowdown; // Kurangi kecepatan rotasi setiap frame
+    p.rotationSpeed *= 1 - p.rotationSlowdown;
 
-    // Terapkan posisi dan rotasi ke elemen partikel
-    p.element.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${p.rotation}deg)`;
+    // Batasi partikel di dalam layar dan pantulkan jika perlu
+    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-    // Deteksi batas layar untuk memantulkan partikel
-    if (p.x < 0 || p.x > window.innerWidth) p.speedX *= -1;
-    if (p.y < 0 || p.y > window.innerHeight) p.speedY *= -1;
+    // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate((p.rotation * Math.PI) / 180);
+    ctx.drawImage(img, -15, -15, 30, 30);
+    ctx.restore();
   });
 
-  requestAnimationFrame(updateParticles);
+  requestAnimationFrame(animateAhoge);
 }
 
 // Tambahkan event listener untuk klik
-window.addEventListener("click", (event) => {
+canvas.addEventListener("click", (event) => {
   // Sesuaikan rentang kecepatan rotasi untuk rotasi lambat
-  const rotationSpeedRange = { min: 0, max: 5 }; // Rotasi lebih lambat, nilai min dan max kecil
-  createParticle(event.clientX, event.clientY, rotationSpeedRange); // Tambah partikel di lokasi klik dengan rentang rotasi lambat
-  updateCounterChip();
+  console.log(ahoge);
+
+  createAhoge(event.clientX, event.clientY); // Tambah ahoge di lokasi klik dengan rentang rotasi lambat
+  // updateCounterChip();
 });
 
-function deleteParticles() {
-  if (particles.length > 0) {
-    // Pastikan ada partikel yang akan dihapus
-    const index = Math.floor(Math.random() * particles.length); // Pilih index acak
-    particles[index].element.remove(); // Hapus elemen dari DOM
-    particles.splice(index, 1); // Hapus dari array particles
-  }
-}
+// function deleteParticles() {
+//   if (particles.length > 0) {
+//     // Pastikan ada ahoge yang akan dihapus
+//     const index = Math.floor(Math.random() * particles.length); // Pilih index acak
+//     particles[index].element.remove(); // Hapus elemen dari DOM
+//     particles.splice(index, 1); // Hapus dari array particles
+//   }
+// }
 
-function updateCounterChip() {
-  const counterChip = document.getElementById("counterChip");
-  counterChip.innerHTML = `Chip: ${particles.length}`;
-}
+// function updateCounterChip() {
+//   const counterChip = document.getElementById("counterChip");
+//   counterChip.innerHTML = `Chip: ${particles.length}`;
+// }
 
-// setInterval(deleteParticles, 1000); // Hapus partikel setiap 1 detik
+// setInterval(deleteParticles, 1000); // Hapus ahoge setiap 1 detik
 
 // Mulai animasi
-updateCounterChip();
-updateParticles();
+// updateCounterChip();
+
+img.onload = () => {
+  animateAhoge();
+};
+// animateAhoge();
