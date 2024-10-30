@@ -1,9 +1,13 @@
 // Array untuk menyimpan semua ahoge
 
+// import { drawImage } from "./function.js";
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+// Gambar nijika
 
 // Setting Ahoge
 const ahoge = [];
@@ -13,11 +17,13 @@ const damping = 0.98;
 const maxDistance = 800; // Jarak maksimum untuk gaya tarik
 
 let magnet = { x: null, y: null };
-let rotationSpeedRange = { min: 0, max: 5 };;
+let rotationSpeedRange = { min: 0, max: 5 };
 
-const img = new Image();
-img.src = '/public/assets/image/ahoge.webp'; // Ganti dengan URL gambar Anda
+const ahogeImage = new Image();
+ahogeImage.src = "/public/assets/image/ahoge.webp"; // Ganti dengan URL gambar Anda
 
+const nijika = new Image();
+nijika.src = "/public/assets/image/nijika.png"; // Ganti dengan URL gambar Anda
 
 // let particles = [];
 const maxSpeed = 2; // Kecepatan maksimum ahoge
@@ -40,7 +46,6 @@ function createAhoge(x, y) {
     // y: Math.random() * canvas.height,
     x: x,
     y: y,
-
 
     // Kecepatan ahoge secara acak
     vx: (Math.random() - 0.5) * 4,
@@ -103,56 +108,21 @@ function drawMagnet(x, y) {
   ctx.fill();
 }
 
-// function animateAhoge() {
-//   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//   handleCollisions();
-
-//   ahoge.forEach((p) => {
-//     // Jika magnet ada, tarik ahoge ke arah magnet
-//     if (magnet.x !== null && magnet.y !== null) {
-//       let dx = magnet.x - p.x;
-//       let dy = magnet.y - p.y;
-//       let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy));
-
-//       if (distance < maxDistance) {
-//         // Jarak maksimum untuk gaya magnet
-//         let force = Math.min(baseForce / distance, 0.1);
-//         let forceDirectionX = dx / distance;
-//         let forceDirectionY = dy / distance;
-//         // let speedMultiplier = Math.max(0.1, 1 - distance / maxDistance); // Mengurangi kecepatan berdasarkan jarak
-//         p.vx += forceDirectionX * force;
-//         p.vy += forceDirectionY * force;
-//         p.vx *= damping;
-//         p.vy *= damping;
-//       }
-//     }
-
-//     // Update posisi ahoge
-//     p.x += p.vx;
-//     p.y += p.vy;
-
-//     // Batasi ahoge dalam area canvas
-//     if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-//     if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-//     // Gambar ahoge
-//     ctx.beginPath();
-//     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-//     ctx.fillStyle = "white";
-//     ctx.fill();
-//   });
-
-//   requestAnimationFrame(animateParticles);
-// }
-
 // Fungsi untuk mengupdate posisi dan rotasi ahoge
 function animateAhoge() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  handleCollisions()
+
+  ctx.save(); // Simpan keadaan kanvas
+  ctx.translate(100, 800); // Pindahkan titik tengah ke posisi gambar
+  ctx.rotate(25 * (Math.PI / 180)); // Putar kanvas pada sudut tertentu
+  ctx.drawImage(nijika, -nijika.width / 2, -nijika.height / 2); // Gambar gambar dengan pusat sebagai titik referensi
+  ctx.restore(); // Kembalikan keadaan kanvas
+
+  handleCollisions();
 
   ahoge.forEach((p) => {
-    // Update posisi berdasarkan kecepatan
+    // Update posisi berdasarkan kecepata
+
     p.x += p.vx;
     p.y += p.vy;
 
@@ -173,7 +143,7 @@ function animateAhoge() {
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate((p.rotation * Math.PI) / 180);
-    ctx.drawImage(img, -15, -15, 30, 30);
+    ctx.drawImage(ahogeImage, -15, -15, 30, 30);
     ctx.restore();
   });
 
@@ -208,7 +178,7 @@ canvas.addEventListener("click", (event) => {
 // Mulai animasi
 // updateCounterChip();
 
-img.onload = () => {
+ahogeImage.onload = () => {
   animateAhoge();
 };
 // animateAhoge();
