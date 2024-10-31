@@ -1,6 +1,6 @@
 // Array untuk menyimpan semua ahoge
 
-// import { drawImage } from "./function.js";
+import { drawImage } from "./function.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -19,11 +19,17 @@ const maxDistance = 800; // Jarak maksimum untuk gaya tarik
 let magnet = { x: null, y: null };
 let rotationSpeedRange = { min: 0, max: 5 };
 
+// deklarasi gambar ahoge
 const ahogeImage = new Image();
-ahogeImage.src = "/public/assets/image/ahoge.webp"; // Ganti dengan URL gambar Anda
+ahogeImage.src = "/public/assets/image/ahoge.webp";
 
+// deklarasi gambar nijika
 const nijika = new Image();
-nijika.src = "/public/assets/image/nijika.png"; // Ganti dengan URL gambar Anda
+nijika.src = "/public/assets/image/nijika-1.png";
+
+// deklarasi gambar log
+const logo = new Image();
+logo.src = "/public/assets/image/Kessoku_Band_Logo.svg";
 
 // let particles = [];
 const maxSpeed = 2; // Kecepatan maksimum ahoge
@@ -98,6 +104,15 @@ function handleCollisions() {
     }
   }
 }
+// Fungsi untuk menggambar gambar pada posisi tertentu
+// function drawImage(ctx,image, x, y, width, height) {
+
+//   ctx.save(); // Simpan keadaan kanvas
+//   // ctx.translate(xPos, yPos); // Pindahkan titik tengah ke posisi gambar
+//   // ctx.rotate(0 * (Math.PI / 180)); // Putar kanvas pada sudut tertentu
+//   ctx.drawImage(image, 0, canvas.height - nijika.height); // Gambar gambar dengan pusat sebagai titik referensi
+//   ctx.restore(); // Kembalikan keadaan kanvas
+// }
 
 function drawMagnet(x, y) {
   magnet.x = x;
@@ -112,12 +127,22 @@ function drawMagnet(x, y) {
 function animateAhoge() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.save(); // Simpan keadaan kanvas
-  ctx.translate(100, 800); // Pindahkan titik tengah ke posisi gambar
-  ctx.rotate(25 * (Math.PI / 180)); // Putar kanvas pada sudut tertentu
-  ctx.drawImage(nijika, -nijika.width / 2, -nijika.height / 2); // Gambar gambar dengan pusat sebagai titik referensi
-  ctx.restore(); // Kembalikan keadaan kanvas
+  // gambar nijika
+  drawImage(
+    ctx,
+    nijika,
+    0,
+    canvas.height - nijika.height
+  );
 
+  // Gambar logo 
+  drawImage(
+    ctx,
+    logo,
+    (canvas.width - logo.width) / 2,
+    (canvas.height - logo.height) / 4,
+    0.5,
+  );
   handleCollisions();
 
   ahoge.forEach((p) => {
