@@ -7,7 +7,6 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Gambar nijika
 
 // Setting Ahoge
 const ahoge = [];
@@ -178,8 +177,8 @@ function animateAhoge() {
 // Tambahkan event listener untuk klik
 canvas.addEventListener("click", (event) => {
   // Sesuaikan rentang kecepatan rotasi untuk rotasi lambat
-  console.log(ahoge);
-
+  const soundAhoge = new Audio('/public/assets/sound/happy-pop-2-185287.mp3');
+  soundAhoge.play();
   createAhoge(event.clientX, event.clientY); // Tambah ahoge di lokasi klik dengan rentang rotasi lambat
   // updateCounterChip();
 });
