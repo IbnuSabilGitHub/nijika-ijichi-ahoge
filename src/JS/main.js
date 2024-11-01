@@ -7,7 +7,6 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-
 // Setting Ahoge
 const ahoge = [];
 const ahogeCount = 0;
@@ -15,7 +14,7 @@ const baseForce = 40;
 const damping = 0.98;
 const maxDistance = 800; // Jarak maksimum untuk gaya tarik
 
-let magnet = { x: null, y: null };
+let magnet = { x: null, y: null, statusMaget: false };
 let rotationSpeedRange = { min: 0, max: 5 };
 
 // deklarasi gambar ahoge
@@ -29,6 +28,9 @@ nijika.src = "/public/assets/image/nijika-1.png";
 // deklarasi gambar log
 const logo = new Image();
 logo.src = "/public/assets/image/Kessoku_Band_Logo.svg";
+
+const magnetImage = new Image();
+magnetImage.src = "/public/assets/image/eww_people.png";
 
 // let particles = [];
 const maxSpeed = 2; // Kecepatan maksimum ahoge
@@ -113,36 +115,31 @@ function handleCollisions() {
 //   ctx.restore(); // Kembalikan keadaan kanvas
 // }
 
-function drawMagnet(x, y) {
-  magnet.x = x;
-  magnet.y = y;
-  ctx.fillStyle = "red";
-  ctx.beginPath();
-  ctx.arc(magnet.x, magnet.y, 10, 0, Math.PI * 2);
-  ctx.fill();
-}
+
 
 // Fungsi untuk mengupdate posisi dan rotasi ahoge
 function animateAhoge() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // gambar nijika
-  drawImage(
-    ctx,
-    nijika,
-    0,
-    canvas.height - nijika.height
-  );
+  drawImage(ctx, nijika, 0, canvas.height - nijika.height);
 
-  // Gambar logo 
+  // Gambar logo
   drawImage(
     ctx,
     logo,
     (canvas.width - logo.width) / 2,
     (canvas.height - logo.height) / 4,
-    0.5,
+    0.5
   );
+
+
+  if(magnet.statusMaget && ahoge.length > 10) {
+    drawImage(ctx, magnetImage, magnet.x, magnet.y,1,300,300);
+  } 
+
   handleCollisions();
+
 
   ahoge.forEach((p) => {
     // Update posisi berdasarkan kecepata
@@ -177,7 +174,7 @@ function animateAhoge() {
 // Tambahkan event listener untuk klik
 canvas.addEventListener("click", (event) => {
   // Sesuaikan rentang kecepatan rotasi untuk rotasi lambat
-  const soundAhoge = new Audio('/public/assets/sound/happy-pop-2-185287.mp3');
+  const soundAhoge = new Audio("/public/assets/sound/happy-pop-2-185287.mp3");
   soundAhoge.play();
   createAhoge(event.clientX, event.clientY); // Tambah ahoge di lokasi klik dengan rentang rotasi lambat
   // updateCounterChip();
@@ -201,6 +198,24 @@ canvas.addEventListener("click", (event) => {
 
 // Mulai animasi
 // updateCounterChip();
+setInterval(() => {
+  if (magnet.statusMaget) {
+    // Menonaktifkan magnet setelah aktif
+    magnet.x = null;
+    magnet.y = null;
+    ahoge.forEach((p) => {
+      p.vx += (Math.random() - 0.5) * 8;
+      p.vy += (Math.random() - 0.5) * 8;
+    });
+    magnet.statusMaget = false;
+  } else {
+    // Mengaktifkan magnet dengan posisi acak
+    magnet.x = Math.random() * canvas.width;
+    magnet.y = Math.random() * canvas.height;
+    magnet.statusMaget = true;
+  }
+}, 5000); // Ulangi setiap 5 detik
+
 
 ahogeImage.onload = () => {
   animateAhoge();
