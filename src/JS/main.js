@@ -1,9 +1,11 @@
 // Array untuk menyimpan semua ahoge
 
 import { drawImage } from "./function.js";
+import { textConfig } from "./function.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -34,6 +36,18 @@ magnetImage.src = "/public/assets/image/eww_people.png";
 
 // let particles = [];
 const maxSpeed = 2; // Kecepatan maksimum ahoge
+
+function setupText() {
+  ctx.font = textConfig.font;
+  ctx.fillStyle = textConfig.fillStyle;
+  ctx.textAlign = textConfig.textAlign;
+  ctx.textBaseline = textConfig.textBaseline;
+}
+
+function drawText(text, x, y) {
+  setupText();
+  ctx.fillText(text, x, y);
+}
 
 // Fungsi untuk membuat ahoge baru
 function createAhoge(x, y) {
@@ -106,6 +120,8 @@ function handleCollisions() {
 // Fungsi untuk mengupdate posisi dan rotasi ahoge
 function animateAhoge() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const text = "Developed by IBNU with ❤️";
+  drawText(text, 115, 18);
 
   // gambar nijika
   drawImage(ctx, nijika, 0, canvas.height - nijika.height);
@@ -140,6 +156,7 @@ function animateAhoge() {
   ahoge.forEach((p) => {
     // Update posisi berdasarkan kecepata
 
+    // Jika magnet aktif, tarik ahoge ke magnet
     if (magnet.statusMaget && ahoge.length > 10) {
       // let dx = magnet.x + magnetImage.width / 2 - p.x;
       // let dy = magnet.y + magnetImage.height / 2 - p.y;
@@ -181,7 +198,7 @@ function animateAhoge() {
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate((p.rotation * Math.PI) / 180);
-    ctx.drawImage(ahogeImage, -15, -15, 20, 20);
+    ctx.drawImage(ahogeImage, -15, -15, 35, 35);
     ctx.restore();
   });
 

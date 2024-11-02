@@ -14,3 +14,11 @@ export function drawImage(
   ctx.drawImage(image, x, y, width, height); // Gambar gambar dengan pusat sebagai titik referensi
   ctx.restore(); // Kembalikan keadaan kanvas
 }
+
+
+export const textConfig = {
+  font: '400 1rem "Segoe UI"',
+  fillStyle: 'white',
+  textAlign: 'center',
+  textBaseline: 'middle'
+};
