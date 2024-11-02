@@ -181,7 +181,7 @@ function animateAhoge() {
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate((p.rotation * Math.PI) / 180);
-    ctx.drawImage(ahogeImage, -15, -15, 30, 30);
+    ctx.drawImage(ahogeImage, -15, -15, 20, 20);
     ctx.restore();
   });
 
@@ -190,10 +190,18 @@ function animateAhoge() {
 
 // Tambahkan event listener untuk klik
 canvas.addEventListener("click", (event) => {
-  // Sesuaikan rentang kecepatan rotasi untuk rotasi lambat
-  const soundAhoge = new Audio("/public/assets/sound/happy-pop-2-185287.mp3");
-  soundAhoge.play();
-  createAhoge(event.clientX, event.clientY); // Tambah ahoge di lokasi klik dengan rentang rotasi lambat
+  // Dapatkan posisi klik relatif terhadap canvas
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  // Jika klik di area tertentu(ahoge nijika), tambahkan ahoge
+  if (x >= 180 && x <= 220 && y >= 670 && y <= 730) {
+    // play sound effect
+    const soundAhoge = new Audio("/public/assets/sound/happy-pop-2-185287.mp3");
+    soundAhoge.play();
+    createAhoge(event.clientX, event.clientY);
+  }
   // updateCounterChip();
 });
 
