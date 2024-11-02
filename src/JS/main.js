@@ -48,9 +48,6 @@ function createAhoge(x, y) {
 
   // Inisialisasi data ahoge
   ahoge.push({
-    // Posisi ahoge secara acak
-    // x: Math.random() * canvas.width,
-    // y: Math.random() * canvas.height,
     x: x,
     y: y,
 
@@ -105,17 +102,6 @@ function handleCollisions() {
     }
   }
 }
-// Fungsi untuk menggambar gambar pada posisi tertentu
-// function drawImage(ctx,image, x, y, width, height) {
-
-//   ctx.save(); // Simpan keadaan kanvas
-//   // ctx.translate(xPos, yPos); // Pindahkan titik tengah ke posisi gambar
-//   // ctx.rotate(0 * (Math.PI / 180)); // Putar kanvas pada sudut tertentu
-//   ctx.drawImage(image, 0, canvas.height - nijika.height); // Gambar gambar dengan pusat sebagai titik referensi
-//   ctx.restore(); // Kembalikan keadaan kanvas
-// }
-
-
 
 // Fungsi untuk mengupdate posisi dan rotasi ahoge
 function animateAhoge() {
@@ -133,16 +119,47 @@ function animateAhoge() {
     0.5
   );
 
-
-  if(magnet.statusMaget && ahoge.length > 10) {
-    drawImage(ctx, magnetImage, magnet.x, magnet.y,1,300,300);
-  } 
+  if (magnet.statusMaget && ahoge.length > 10) {
+    magnetImage.width = 200;
+    magnetImage.height = 200;
+    const centerX = magnet.x - magnetImage.width / 2;
+    const centerY = magnet.y - magnetImage.height / 2;
+    drawImage(
+      ctx,
+      magnetImage,
+      centerX,
+      centerY,
+      1,
+      magnetImage.width,
+      magnetImage.height
+    );
+  }
 
   handleCollisions();
 
-
   ahoge.forEach((p) => {
     // Update posisi berdasarkan kecepata
+
+    if (magnet.statusMaget && ahoge.length > 10) {
+      // let dx = magnet.x + magnetImage.width / 2 - p.x;
+      // let dy = magnet.y + magnetImage.height / 2 - p.y;
+      let dx = magnet.x - p.x;
+      let dy = magnet.y - p.y;
+      let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy));
+
+      if (distance < maxDistance) {
+        // Jarak maksimum untuk gaya magnet
+        let force = Math.min(baseForce / distance, 0.1);
+        // let force = Math.min(baseForce / Math.pow(distance, 1.2), 0.1);
+        let forceDirectionX = dx / distance;
+        let forceDirectionY = dy / distance;
+        // let speedMultiplier = Math.max(0.1, 1 - distance / maxDistance); // Mengurangi kecepatan berdasarkan jarak
+        p.vx += forceDirectionX * force;
+        p.vy += forceDirectionY * force;
+        p.vx *= damping;
+        p.vy *= damping;
+      }
+    }
 
     p.x += p.vx;
     p.y += p.vy;
@@ -215,7 +232,6 @@ setInterval(() => {
     magnet.statusMaget = true;
   }
 }, 5000); // Ulangi setiap 5 detik
-
 
 ahogeImage.onload = () => {
   animateAhoge();
