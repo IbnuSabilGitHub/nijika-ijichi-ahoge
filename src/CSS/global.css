@@ -10,9 +10,9 @@ body,
 html {
   margin: 0;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
   height: 100vh;
   background: #FE98A5;
 }

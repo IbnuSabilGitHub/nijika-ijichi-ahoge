@@ -9,6 +9,10 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+
+
+
+
 // Setting Ahoge
 const ahoge = [];
 const ahogeCount = 0;
@@ -35,7 +39,33 @@ const magnetImage = new Image();
 magnetImage.src = "/public/assets/image/eww_people.png";
 
 // let particles = [];
-const maxSpeed = 2; // Kecepatan maksimum ahoge
+// const maxSpeed = 2; // Kecepatan maksimum ahoge
+
+let targetX = 185; // Posisi x ahoge dalam gambar asli
+let targetY = 115; // Posisi y ahoge dalam gambar asli
+let targetWidth = 30; // Lebar area ahoge
+let targetHeight = 40; // Tinggi area ahoge
+
+
+if (window.innerWidth < 430) {
+  // Ubah Ukuran gambar nijika
+  nijika.width = 200;
+  nijika.height = 200;
+
+  // ubah ukuran gambar logo
+  logo.width = 250;
+  logo.height = 250;
+
+  // Ubah ukuran partikel ahoge
+
+
+
+  // Ubah target button ahode
+  targetX = 100; // Posisi x ahoge dalam gambar asli
+  targetY = 60; // Posisi y ahoge dalam gambar asli
+  targetWidth = 15; // Lebar area ahoge
+  targetHeight = 20; // Tinggi area ahoge
+}
 
 function setupText() {
   ctx.font = textConfig.font;
@@ -124,15 +154,23 @@ function animateAhoge() {
   drawText(text, 115, 18);
 
   // gambar nijika
-  drawImage(ctx, nijika, 0, canvas.height - nijika.height);
 
+  drawImage(
+    ctx,
+    nijika,
+    0,
+    canvas.height - nijika.height,
+    1,
+    nijika.width,
+    nijika.height
+  );
   // Gambar logo
   drawImage(
     ctx,
     logo,
     (canvas.width - logo.width) / 2,
     (canvas.height - logo.height) / 4,
-    0.5
+    0.3
   );
 
   if (magnet.statusMaget && ahoge.length > 10) {
@@ -198,7 +236,9 @@ function animateAhoge() {
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate((p.rotation * Math.PI) / 180);
-    ctx.drawImage(ahogeImage, -15, -15, 35, 35);
+    const ahogeWidth = window.innerWidth < 420 ? 20 :40;
+    const ahogeHeight = window.innerWidth < 420 ? 20 :40;
+    ctx.drawImage(ahogeImage, -15, -15,ahogeWidth, ahogeHeight);
     ctx.restore();
   });
 
@@ -207,19 +247,42 @@ function animateAhoge() {
 
 // Tambahkan event listener untuk klik
 canvas.addEventListener("click", (event) => {
-  // Dapatkan posisi klik relatif terhadap canvas
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
 
-  // Jika klik di area tertentu(ahoge nijika), tambahkan ahoge
-  if (x >= 180 && x <= 220 && y >= 670 && y <= 730) {
-    // play sound effect
+
+
+  const imgWidth = nijika.width;
+  const imgHeight = nijika.height;
+  console.log(nijika.width);
+
+  const imgX = 0;
+  const imgY = canvas.height - imgHeight;
+
+  const targetCanvasX = imgX + (targetX / nijika.width) * imgWidth;
+  const targetCanvasY = imgY + (targetY / nijika.height) * imgHeight;
+  const targetCanvasWidth = (targetWidth / nijika.width) * imgWidth;
+  const targetCanvasHeight = (targetHeight / nijika.height) * imgHeight;
+
+  // Cek apakah klik berada di area target (mata)
+  if (
+    x > targetCanvasX &&
+    x < targetCanvasX + targetCanvasWidth &&
+    y > targetCanvasY &&
+    y < targetCanvasY + targetCanvasHeight
+  ) {
     const soundAhoge = new Audio("/public/assets/sound/happy-pop-2-185287.mp3");
     soundAhoge.play();
-    createAhoge(event.clientX, event.clientY);
+    createAhoge(x, y);
   }
-  // updateCounterChip();
+  // console.log(`Mouse: (${mouseX}, ${mouseY}) | Target: X(${xStart}-${xEnd}), Y(${yStart}-${yEnd})`);
+
+  // Deteksi klik dalam area target
+  // if (mouseX >= xStart && mouseX <= xEnd && mouseY >= yStart && mouseY <= yEnd) {
+  //   // Mainkan efek suara
+
+  // }
 });
 
 // function deleteParticles() {
