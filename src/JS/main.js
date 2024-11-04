@@ -22,6 +22,7 @@ const maxDistance = 800; // Jarak maksimum untuk gaya tarik
 
 let magnet = { x: null, y: null, statusMaget: false };
 let rotationSpeedRange = { min: 0, max: 5 };
+let ahogeToRemove = [];
 
 // deklarasi gambar ahoge
 const ahogeImage = new Image();
@@ -151,7 +152,9 @@ function handleCollisions() {
 function animateAhoge() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const text = "Developed by IBNU with ❤️";
+  let counterAhoge = `Ahoge : ${ahoge.length}`;
   drawText(text, 115, 18);
+  drawText(counterAhoge, 50, 50);
 
   // gambar nijika
 
@@ -187,11 +190,19 @@ function animateAhoge() {
       magnetImage.width,
       magnetImage.height
     );
+
   }
+
+  if(isOn){ 
+    const index =  Math.floor(Math.random() * ahogeToRemove.length); // Pilih index acak
+    ahoge.splice(index, 1); // Hapus dari array particles
+  }
+
+
 
   handleCollisions();
 
-  ahoge.forEach((p) => {
+  ahoge.forEach((p,index) => {
     // Update posisi berdasarkan kecepata
 
     // Jika magnet aktif, tarik ahoge ke magnet
@@ -201,6 +212,7 @@ function animateAhoge() {
       let dx = magnet.x - p.x;
       let dy = magnet.y - p.y;
       let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy));
+      // console.log(distance);
 
       if (distance < maxDistance) {
         // Jarak maksimum untuk gaya magnet
@@ -213,8 +225,13 @@ function animateAhoge() {
         p.vy += forceDirectionY * force;
         p.vx *= damping;
         p.vy *= damping;
+        if(distance < 51){
+          ahogeToRemove.push(index);
+        }
       }
+
     }
+
 
     p.x += p.vx;
     p.y += p.vy;
@@ -241,8 +258,24 @@ function animateAhoge() {
     ctx.drawImage(ahogeImage, -15, -15,ahogeWidth, ahogeHeight);
     ctx.restore();
   });
-
   requestAnimationFrame(animateAhoge);
+}
+
+let isOn = false; // Status awal
+const intervalTime = 1000; // Jeda waktu dalam milidetik (1 detik)
+let intervalId; // Menyimpan ID interval
+
+function startInterval() {
+  intervalId = setInterval(() => {
+    if (ahogeToRemove.length > 0 && magnet.statusMaget) {
+      // Jika ada ahoge yang akan dihapus
+
+      // Mengubah status switch
+      isOn = !isOn; // Toggle status
+      console.log(`Switch is now: ${isOn ? 'ON' : 'OFF'}`);
+
+    }
+  }, intervalTime);
 }
 
 // Tambahkan event listener untuk klik
@@ -255,7 +288,6 @@ canvas.addEventListener("click", (event) => {
 
   const imgWidth = nijika.width;
   const imgHeight = nijika.height;
-  console.log(nijika.width);
 
   const imgX = 0;
   const imgY = canvas.height - imgHeight;
@@ -303,20 +335,27 @@ canvas.addEventListener("click", (event) => {
 
 // Mulai animasi
 // updateCounterChip();
+
+
+
 setInterval(() => {
   if (magnet.statusMaget) {
     // Menonaktifkan magnet setelah aktif
     magnet.x = null;
     magnet.y = null;
     ahoge.forEach((p) => {
-      p.vx += (Math.random() - 0.5) * 8;
-      p.vy += (Math.random() - 0.5) * 8;
+      p.vx += (Math.random() - 0.5) * 4;
+      p.vy += (Math.random() - 0.5) * 4;
     });
+    clearInterval(intervalId); // Hentikan interval
+    isOn = false; //matikan peghapusan
+    ahogeToRemove = []; // Reset array
     magnet.statusMaget = false;
   } else {
     // Mengaktifkan magnet dengan posisi acak
     magnet.x = Math.random() * canvas.width;
     magnet.y = Math.random() * canvas.height;
+    startInterval(); // Mulai interval
     magnet.statusMaget = true;
   }
 }, 5000); // Ulangi setiap 5 detik
