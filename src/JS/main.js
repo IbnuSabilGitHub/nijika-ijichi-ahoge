@@ -9,16 +9,12 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-
-
-
-
 // Setting Ahoge
 const ahoge = [];
 const ahogeCount = 0;
 const baseForce = 40;
 const damping = 0.98;
-const maxDistance = 800; // Jarak maksimum untuk gaya tarik
+const maxDistance = 400; // Jarak maksimum untuk gaya tarik
 
 let magnet = { x: null, y: null, statusMaget: false };
 let rotationSpeedRange = { min: 0, max: 5 };
@@ -29,9 +25,13 @@ const ahogeImage = new Image();
 ahogeImage.src = "/public/assets/image/ahoge.webp";
 
 // deklarasi gambar nijika
+let nijikaCondition = false;
+const nijikaImage = [
+  "/public/assets/image/nijika-0.png",
+  "/public/assets/image/nijika-1.png",
+];
 const nijika = new Image();
-nijika.src = "/public/assets/image/nijika-1.png";
-
+nijika.src = nijikaImage[+nijikaCondition];
 // deklarasi gambar log
 const logo = new Image();
 logo.src = "/public/assets/image/Kessoku_Band_Logo.svg";
@@ -47,7 +47,6 @@ let targetY = 115; // Posisi y ahoge dalam gambar asli
 let targetWidth = 30; // Lebar area ahoge
 let targetHeight = 40; // Tinggi area ahoge
 
-
 if (window.innerWidth < 430) {
   // Ubah Ukuran gambar nijika
   nijika.width = 200;
@@ -58,8 +57,6 @@ if (window.innerWidth < 430) {
   logo.height = 250;
 
   // Ubah ukuran partikel ahoge
-
-
 
   // Ubah target button ahode
   targetX = 100; // Posisi x ahoge dalam gambar asli
@@ -157,7 +154,7 @@ function animateAhoge() {
   drawText(counterAhoge, 50, 50);
 
   // gambar nijika
-
+  nijika.src = nijikaImage[+nijikaCondition]
   drawImage(
     ctx,
     nijika,
@@ -167,6 +164,7 @@ function animateAhoge() {
     nijika.width,
     nijika.height
   );
+
   // Gambar logo
   drawImage(
     ctx,
@@ -190,19 +188,16 @@ function animateAhoge() {
       magnetImage.width,
       magnetImage.height
     );
-
   }
 
-  if(isOn){ 
-    const index =  Math.floor(Math.random() * ahogeToRemove.length); // Pilih index acak
+  if (isOn && ahoge.length > 10) {
+    const index = Math.floor(Math.random() * ahogeToRemove.length); // Pilih index acak
     ahoge.splice(index, 1); // Hapus dari array particles
   }
 
-
-
   handleCollisions();
 
-  ahoge.forEach((p,index) => {
+  ahoge.forEach((p, index) => {
     // Update posisi berdasarkan kecepata
 
     // Jika magnet aktif, tarik ahoge ke magnet
@@ -225,13 +220,11 @@ function animateAhoge() {
         p.vy += forceDirectionY * force;
         p.vx *= damping;
         p.vy *= damping;
-        if(distance < 51){
+        if (distance < 51) {
           ahogeToRemove.push(index);
         }
       }
-
     }
-
 
     p.x += p.vx;
     p.y += p.vy;
@@ -253,9 +246,9 @@ function animateAhoge() {
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate((p.rotation * Math.PI) / 180);
-    const ahogeWidth = window.innerWidth < 420 ? 20 :40;
-    const ahogeHeight = window.innerWidth < 420 ? 20 :40;
-    ctx.drawImage(ahogeImage, -15, -15,ahogeWidth, ahogeHeight);
+    const ahogeWidth = window.innerWidth < 420 ? 20 : 40;
+    const ahogeHeight = window.innerWidth < 420 ? 20 : 40;
+    ctx.drawImage(ahogeImage, -15, -15, ahogeWidth, ahogeHeight);
     ctx.restore();
   });
   requestAnimationFrame(animateAhoge);
@@ -272,8 +265,7 @@ function startInterval() {
 
       // Mengubah status switch
       isOn = !isOn; // Toggle status
-      console.log(`Switch is now: ${isOn ? 'ON' : 'OFF'}`);
-
+      console.log(`Switch is now: ${isOn ? "ON" : "OFF"}`);
     }
   }, intervalTime);
 }
@@ -283,8 +275,6 @@ canvas.addEventListener("click", (event) => {
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
-
-
 
   const imgWidth = nijika.width;
   const imgHeight = nijika.height;
@@ -306,6 +296,13 @@ canvas.addEventListener("click", (event) => {
   ) {
     const soundAhoge = new Audio("/public/assets/sound/happy-pop-2-185287.mp3");
     soundAhoge.play();
+
+    const originalValue = nijikaCondition; // simpan nilai asli
+    nijikaCondition = !nijikaCondition; // ubah nilai
+    // Tunggu 100ms sebelum mengembalikan nilai asli
+    setTimeout(() => {
+      nijikaCondition = originalValue;
+    }, 300);
     createAhoge(x, y);
   }
   // console.log(`Mouse: (${mouseX}, ${mouseY}) | Target: X(${xStart}-${xEnd}), Y(${yStart}-${yEnd})`);
@@ -335,8 +332,6 @@ canvas.addEventListener("click", (event) => {
 
 // Mulai animasi
 // updateCounterChip();
-
-
 
 setInterval(() => {
   if (magnet.statusMaget) {
