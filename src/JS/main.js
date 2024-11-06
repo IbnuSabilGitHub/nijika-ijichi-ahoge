@@ -20,6 +20,17 @@ let magnet = { x: null, y: null, statusMaget: false };
 let rotationSpeedRange = { min: 0, max: 5 };
 let ahogeToRemove = [];
 
+
+// Fungsi untuk memuat gambar yang mengembalikan Promise
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img); // Resolusi dengan objek img yang sudah dimuat
+    img.onerror = reject; // Jika ada kesalahan saat memuat gambar
+  });
+}
+
 // deklarasi gambar ahoge
 const ahogeImage = new Image();
 ahogeImage.src = "/public/assets/image/ahoge.webp";
@@ -88,6 +99,8 @@ function createAhoge(x, y) {
     (Math.random() * (rotationSpeedRange.max - rotationSpeedRange.min) +
       rotationSpeedRange.min);
 
+
+      
   // Inisialisasi data ahoge
   ahoge.push({
     x: x,
