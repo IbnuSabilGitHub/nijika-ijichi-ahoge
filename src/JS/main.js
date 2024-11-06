@@ -6,86 +6,38 @@ import { textConfig } from "./function.js";
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = window.innerWidth; // Lebar kanvas mengikuti lebar layar
+canvas.height = window.innerHeight; // leabr kanvas mengikuti tinggi layar
 
-// Setting Ahoge
-const ahoge = [];
-const ahogeCount = 0;
-const baseForce = 40;
-const damping = 0.98;
+// Setting untuk Ahoge flying
+const ahoge = []; // Array untuk menyimpan semua ahoge
+const ahogeCount = 0; // untuk meyimkan jumlah ahoge
+const baseForce = 40; // Mengatur Gaya tarik magnet
+const damping = 0.98; // mengatur peredaman saat mendekati mangnet
 const maxDistance = 400; // Jarak maksimum untuk gaya tarik
+let rotationSpeedRange = { min: 0, max: 5 }; // Kecepatan rotasi acak
+let ahogeToRemove = []; // Array untuk menyimpan ahoge yang akan dihapus
+let magnet = { x: null, y: null, statusMaget: false }; // Magnet untuk menarik ahoge
 
-let magnet = { x: null, y: null, statusMaget: false };
-let rotationSpeedRange = { min: 0, max: 5 };
-let ahogeToRemove = [];
-
-
-// Fungsi untuk memuat gambar yang mengembalikan Promise
-function loadImage(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => resolve(img); // Resolusi dengan objek img yang sudah dimuat
-    img.onerror = reject; // Jika ada kesalahan saat memuat gambar
-  });
-}
-
-// deklarasi gambar ahoge
-const ahogeImage = new Image();
-ahogeImage.src = "/public/assets/image/ahoge.webp";
-
-// deklarasi gambar nijika
-let nijikaCondition = false;
-const nijikaImage = [
-  "/public/assets/image/nijika-0.png",
-  "/public/assets/image/nijika-1.png",
-];
-const nijika = new Image();
-nijika.src = nijikaImage[+nijikaCondition];
-// deklarasi gambar log
-const logo = new Image();
-logo.src = "/public/assets/image/Kessoku_Band_Logo.svg";
-
-const magnetImage = new Image();
-magnetImage.src = "/public/assets/image/eww_people.png";
-
-// let particles = [];
-// const maxSpeed = 2; // Kecepatan maksimum ahoge
-
+// Setting untuk Target click untuk mentirggerd ahoge
 let targetX = 185; // Posisi x ahoge dalam gambar asli
 let targetY = 115; // Posisi y ahoge dalam gambar asli
 let targetWidth = 30; // Lebar area ahoge
 let targetHeight = 40; // Tinggi area ahoge
 
-if (window.innerWidth < 430) {
-  // Ubah Ukuran gambar nijika
-  nijika.width = 200;
-  nijika.height = 200;
-
-  // ubah ukuran gambar logo
-  logo.width = 250;
-  logo.height = 250;
-
-  // Ubah ukuran partikel ahoge
-
-  // Ubah target button ahode
-  targetX = 100; // Posisi x ahoge dalam gambar asli
-  targetY = 60; // Posisi y ahoge dalam gambar asli
-  targetWidth = 15; // Lebar area ahoge
-  targetHeight = 20; // Tinggi area ahoge
-}
-
-function setupText() {
-  ctx.font = textConfig.font;
-  ctx.fillStyle = textConfig.fillStyle;
-  ctx.textAlign = textConfig.textAlign;
-  ctx.textBaseline = textConfig.textBaseline;
-}
-
-function drawText(text, x, y) {
-  setupText();
-  ctx.fillText(text, x, y);
+//
+let isOn = false; // Status awal
+const intervalTime = 500; // Jeda waktu dalam milidetik (1 detik)
+let intervalId; // Menyimpan ID interval
+// Fungsi untuk memulai interval ryo eat
+function startInterval() {
+  intervalId = setInterval(() => {
+    if (ahogeToRemove.length > 0 && magnet.statusMaget) {
+      // Mengubah status switch
+      isOn = !isOn; // Toggle status
+      // console.log(`Switch is now: ${isOn ? "ON" : "OFF"}`);
+    }
+  }, intervalTime);
 }
 
 // Fungsi untuk membuat ahoge baru
@@ -99,8 +51,6 @@ function createAhoge(x, y) {
     (Math.random() * (rotationSpeedRange.max - rotationSpeedRange.min) +
       rotationSpeedRange.min);
 
-
-      
   // Inisialisasi data ahoge
   ahoge.push({
     x: x,
@@ -121,7 +71,7 @@ function createAhoge(x, y) {
     rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
   });
 }
-
+// function untuk menangani tabrakan
 function handleCollisions() {
   for (let i = 0; i < ahoge.length; i++) {
     for (let j = i + 1; j < ahoge.length; j++) {
@@ -157,194 +107,242 @@ function handleCollisions() {
     }
   }
 }
+// Function untuk mengatur teks
+function setupText() {
+  ctx.font = textConfig.font;
+  ctx.fillStyle = textConfig.fillStyle;
+  ctx.textAlign = textConfig.textAlign;
+  ctx.textBaseline = textConfig.textBaseline;
+}
+// Fungsi untuk menggambar teks di kanvas
+function drawText(text, x, y) {
+  setupText();
+  ctx.fillText(text, x, y);
+}
 
-// Fungsi untuk mengupdate posisi dan rotasi ahoge
-function animateAhoge() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const text = "Developed by IBNU with ❤️";
-  let counterAhoge = `Ahoge : ${ahoge.length}`;
-  drawText(text, 115, 18);
-  drawText(counterAhoge, 50, 50);
-
-  // gambar nijika
-  nijika.src = nijikaImage[+nijikaCondition]
-  drawImage(
-    ctx,
-    nijika,
-    0,
-    canvas.height - nijika.height,
-    1,
-    nijika.width,
-    nijika.height
-  );
-
-  // Gambar logo
-  drawImage(
-    ctx,
-    logo,
-    (canvas.width - logo.width) / 2,
-    (canvas.height - logo.height) / 4,
-    0.3
-  );
-
-  if (magnet.statusMaget && ahoge.length > 10) {
-    magnetImage.width = 200;
-    magnetImage.height = 200;
-    const centerX = magnet.x - magnetImage.width / 2;
-    const centerY = magnet.y - magnetImage.height / 2;
-    drawImage(
-      ctx,
-      magnetImage,
-      centerX,
-      centerY,
-      1,
-      magnetImage.width,
-      magnetImage.height
-    );
-  }
-
-  if (isOn && ahoge.length > 10) {
-    const index = Math.floor(Math.random() * ahogeToRemove.length); // Pilih index acak
-    ahoge.splice(index, 1); // Hapus dari array particles
-  }
-
-  handleCollisions();
-
-  ahoge.forEach((p, index) => {
-    // Update posisi berdasarkan kecepata
-
-    // Jika magnet aktif, tarik ahoge ke magnet
-    if (magnet.statusMaget && ahoge.length > 10) {
-      // let dx = magnet.x + magnetImage.width / 2 - p.x;
-      // let dy = magnet.y + magnetImage.height / 2 - p.y;
-      let dx = magnet.x - p.x;
-      let dy = magnet.y - p.y;
-      let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy));
-      // console.log(distance);
-
-      if (distance < maxDistance) {
-        // Jarak maksimum untuk gaya magnet
-        let force = Math.min(baseForce / distance, 0.1);
-        // let force = Math.min(baseForce / Math.pow(distance, 1.2), 0.1);
-        let forceDirectionX = dx / distance;
-        let forceDirectionY = dy / distance;
-        // let speedMultiplier = Math.max(0.1, 1 - distance / maxDistance); // Mengurangi kecepatan berdasarkan jarak
-        p.vx += forceDirectionX * force;
-        p.vy += forceDirectionY * force;
-        p.vx *= damping;
-        p.vy *= damping;
-        if (distance < 51) {
-          ahogeToRemove.push(index);
-        }
-      }
-    }
-
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // Update rotasi ahoge
-    p.angle += p.angularSpeed || 0;
-    p.x += Math.cos(p.angle) * p.radius * 0.01;
-    p.y += Math.sin(p.angle) * p.radius * 0.01;
-
-    // Update rotasi berputar dan melambat secara bertahap
-    p.rotation += p.rotationSpeed;
-    p.rotationSpeed *= 1 - p.rotationSlowdown;
-
-    // Batasi partikel di dalam layar dan pantulkan jika perlu
-    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-    // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate((p.rotation * Math.PI) / 180);
-    const ahogeWidth = window.innerWidth < 420 ? 20 : 40;
-    const ahogeHeight = window.innerWidth < 420 ? 20 : 40;
-    ctx.drawImage(ahogeImage, -15, -15, ahogeWidth, ahogeHeight);
-    ctx.restore();
+// Fungsi untuk memuat gambar yang mengembalikan Promise
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img); // Resolusi dengan objek img yang sudah dimuat
+    img.onerror = reject; // Jika ada kesalahan saat memuat gambar
   });
-  requestAnimationFrame(animateAhoge);
 }
 
-let isOn = false; // Status awal
-const intervalTime = 1000; // Jeda waktu dalam milidetik (1 detik)
-let intervalId; // Menyimpan ID interval
+// Deklarasi URL gambar
+const ahogeImageSrc = "/public/assets/image/ahoge.webp";
+const nijikaImageSrcs = [
+  "/public/assets/image/nijika-0.png",
+  "/public/assets/image/nijika-1.png",
+];
+const logoImageSrc = "/public/assets/image/Kessoku_Band_Logo.svg";
+const magnetImageSrc = "/public/assets/image/eww_people.png";
 
-function startInterval() {
-  intervalId = setInterval(() => {
-    if (ahogeToRemove.length > 0 && magnet.statusMaget) {
-      // Jika ada ahoge yang akan dihapus
+// Muat semua gambar sekaligus
+Promise.all([
+  loadImage(ahogeImageSrc),
+  loadImage(nijikaImageSrcs[0]),
+  loadImage(nijikaImageSrcs[1]),
+  loadImage(logoImageSrc),
+  loadImage(magnetImageSrc),
+])
+  .then((images) => {
+    // Setelah semua gambar dimuat, akses masing-masing gambar dari array `images`
+    const [ahogeImage, nijika0, nijika1, logo, magnetImage] = images;
 
-      // Mengubah status switch
-      isOn = !isOn; // Toggle status
-      console.log(`Switch is now: ${isOn ? "ON" : "OFF"}`);
+    // Gunakan gambar yang sudah dimuat, misalnya simpan dalam variabel
+    let nijikaCondition = false;
+    const nijikaImage = [nijika0, nijika1];
+    const nijika = nijikaImage[+nijikaCondition];
+
+    if (window.innerWidth < 430) {
+      // Ubah Ukuran gambar nijika
+      nijikaImage[0].width = 200;
+      nijikaImage[1].width = 200;
+      nijikaImage[0].height = 200;
+      nijikaImage[1].height = 200;
+
+      // ubah ukuran gambar logo
+      logo.width = 250;
+      logo.height = 250;
+
+      // Ubah ukuran partikel ahoge
+
+      // Ubah target button ahode
+      targetX = 100; // Posisi x ahoge dalam gambar asli
+      targetY = 60; // Posisi y ahoge dalam gambar asli
+      targetWidth = 15; // Lebar area ahoge
+      targetHeight = 20; // Tinggi area ahoge
     }
-  }, intervalTime);
-}
 
-// Tambahkan event listener untuk klik
-canvas.addEventListener("click", (event) => {
-  const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+    // Fungsi untuk mengupdate posisi dan rotasi ahoge
+    function animateAhoge() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Teks di kanvas
+      const text = "Developed by IBNU with ❤️";
+      let counterAhoge = `Ahoge : ${ahoge.length}`;
+      drawText(text, 115, 18);
+      drawText(counterAhoge, 50, 50);
 
-  const imgWidth = nijika.width;
-  const imgHeight = nijika.height;
+      // gambar nijika di kordinat pojok kiri bawah
+      const nijikaAnimation = nijikaImage[+nijikaCondition];
+      drawImage(
+        ctx,
+        nijikaAnimation,
+        0,
+        canvas.height - nijikaAnimation.height,
+        1,
+        nijikaAnimation.width,
+        nijikaAnimation.height
+      );
 
-  const imgX = 0;
-  const imgY = canvas.height - imgHeight;
+      // Gambar logo di tengah kanvas
+      drawImage(
+        ctx,
+        logo,
+        (canvas.width - logo.width) / 2,
+        (canvas.height - logo.height) / 4,
+        0.3
+      );
 
-  const targetCanvasX = imgX + (targetX / nijika.width) * imgWidth;
-  const targetCanvasY = imgY + (targetY / nijika.height) * imgHeight;
-  const targetCanvasWidth = (targetWidth / nijika.width) * imgWidth;
-  const targetCanvasHeight = (targetHeight / nijika.height) * imgHeight;
+      // Gambar magnet di kanvas hnay jika magnet aktif dan ahoge lebih dari 10
+      if (magnet.statusMaget && ahoge.length > 10) {
+        magnetImage.width = 200;
+        magnetImage.height = 200;
+        const centerX = magnet.x - magnetImage.width / 2; // Pusat gambar di x
+        const centerY = magnet.y - magnetImage.height / 2; // Pusat gambar di y
 
-  // Cek apakah klik berada di area target (mata)
-  if (
-    x > targetCanvasX &&
-    x < targetCanvasX + targetCanvasWidth &&
-    y > targetCanvasY &&
-    y < targetCanvasY + targetCanvasHeight
-  ) {
-    const soundAhoge = new Audio("/public/assets/sound/happy-pop-2-185287.mp3");
-    soundAhoge.play();
+        // Gambar magnet di kanvas dengan posisi acak
+        drawImage(
+          ctx,
+          magnetImage,
+          centerX,
+          centerY,
+          1,
+          magnetImage.width,
+          magnetImage.height
+        );
+      }
 
-    const originalValue = nijikaCondition; // simpan nilai asli
-    nijikaCondition = !nijikaCondition; // ubah nilai
-    // Tunggu 100ms sebelum mengembalikan nilai asli
-    setTimeout(() => {
-      nijikaCondition = originalValue;
-    }, 300);
-    createAhoge(x, y);
-  }
-  // console.log(`Mouse: (${mouseX}, ${mouseY}) | Target: X(${xStart}-${xEnd}), Y(${yStart}-${yEnd})`);
+      handleCollisions(); // Tangani tabrakan
 
-  // Deteksi klik dalam area target
-  // if (mouseX >= xStart && mouseX <= xEnd && mouseY >= yStart && mouseY <= yEnd) {
-  //   // Mainkan efek suara
+      // Loop untuk efek force magnet
+      ahoge.forEach((p, index) => {
+        // Update posisi berdasarkan kecepata
 
-  // }
-});
+        // Jika magnet aktif, tarik ahoge ke magnet
+        if (magnet.statusMaget && ahoge.length > 10) {
+          // let dx = magnet.x + magnetImage.width / 2 - p.x;
+          // let dy = magnet.y + magnetImage.height / 2 - p.y;
+          let dx = magnet.x - p.x; // Hitung jarak antara ahoge dan magnet
+          let dy = magnet.y - p.y; // Hitung jarak antara ahoge dan magnet
+          let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy)); // gunakan euclidean distance untuk menghitung jarak
+          // console.log(distance);
 
-// function deleteParticles() {
-//   if (particles.length > 0) {
-//     // Pastikan ada ahoge yang akan dihapus
-//     const index = Math.floor(Math.random() * particles.length); // Pilih index acak
-//     particles[index].element.remove(); // Hapus elemen dari DOM
-//     particles.splice(index, 1); // Hapus dari array particles
-//   }
-// }
+          // hanya tarik ahoge jika jarak lebih kecil dari jarak maksimum
+          if (distance < maxDistance) {
+            // Jarak maksimum untuk gaya magnet
+            let force = Math.min(baseForce / distance, 0.1); // gunakan rumus gaya tarik magnet
+            // let force = Math.min(baseForce / Math.pow(distance, 1.2), 0.1);
+            let forceDirectionX = dx / distance;
+            let forceDirectionY = dy / distance;
+            // let speedMultiplier = Math.max(0.1, 1 - distance / maxDistance); // Mengurangi kecepatan berdasarkan jarak
+            p.vx += forceDirectionX * force;
+            p.vy += forceDirectionY * force;
+            p.vx *= damping;
+            p.vy *= damping;
 
-// function updateCounterChip() {
-//   const counterChip = document.getElementById("counterChip");
-//   counterChip.innerHTML = `Chip: ${particles.length}`;
-// }
+            // tandai ahoge yang akan dihapus jika tertarik di mangnet
+            if (distance < 51) {
+              ahogeToRemove.push(index);
+            }
+          }
+        }
 
-// setInterval(deleteParticles, 1000); // Hapus ahoge setiap 1 detik
+        p.x += p.vx; // Update posisi ahoge
+        p.y += p.vy; // Update posisi ahoge
 
-// Mulai animasi
-// updateCounterChip();
+        // Update rotasi ahoge
+        p.angle += p.angularSpeed || 0;
+        p.x += Math.cos(p.angle) * p.radius * 0.01;
+        p.y += Math.sin(p.angle) * p.radius * 0.01;
+
+        // Update rotasi berputar dan melambat secara bertahap
+        p.rotation += p.rotationSpeed;
+        p.rotationSpeed *= 1 - p.rotationSlowdown;
+
+        // Batasi partikel di dalam layar dan pantulkan jika perlu
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
+        ctx.save(); // Simpan keadaan kanvas
+        ctx.translate(p.x, p.y); // Pindahkan titik tengah ke posisi ahoge
+        ctx.rotate((p.rotation * Math.PI) / 180); // Rotasi dalam radian
+        // Ukuran ahoge berdasarkan layar
+        const ahogeWidth = window.innerWidth < 420 ? 20 : 40; 
+        const ahogeHeight = window.innerWidth < 420 ? 20 : 40; 
+        ctx.drawImage(ahogeImage, -15, -15, ahogeWidth, ahogeHeight); // Gambar ahoge
+        ctx.restore(); // Kembalikan keadaan kanvas
+      });
+
+      // Hapus ahoge yang sudah dihapus hanya jika magnet aktif dengan jedah waktu
+      if (isOn && ahoge.length > 10) {
+        const index = Math.floor(Math.random() * ahogeToRemove.length); // Pilih index acak
+        ahoge.splice(index, 1); // Hapus dari array particles
+      }
+
+      requestAnimationFrame(animateAhoge); // Ulangi animasi
+    }
+
+
+    // Event listener untuk klik pada kanvas
+    canvas.addEventListener("click", (event) => {
+
+      // Ambil posisi klik
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      const imgWidth = nijika.width;
+      const imgHeight = nijika.height;
+
+      const imgX = 0;
+      const imgY = canvas.height - imgHeight;
+
+      const targetCanvasX = imgX + (targetX / nijika.width) * imgWidth;
+      const targetCanvasY = imgY + (targetY / nijika.height) * imgHeight;
+      const targetCanvasWidth = (targetWidth / nijika.width) * imgWidth;
+      const targetCanvasHeight = (targetHeight / nijika.height) * imgHeight;
+
+      // Cek apakah klik berada di area target (mata)
+      if (
+        x > targetCanvasX &&
+        x < targetCanvasX + targetCanvasWidth &&
+        y > targetCanvasY &&
+        y < targetCanvasY + targetCanvasHeight
+      ) {
+        const soundAhoge = new Audio(
+          "/public/assets/sound/happy-pop-2-185287.mp3"
+        );
+        soundAhoge.play();
+
+        const originalValue = nijikaCondition; // simpan nilai asli
+        nijikaCondition = !nijikaCondition; // ubah nilai
+        // Tunggu 100ms sebelum mengembalikan nilai asli
+        setTimeout(() => {
+          nijikaCondition = originalValue;
+        }, 300);
+        createAhoge(x, y);
+      }
+    });
+
+    animateAhoge(); // Mulai animasi
+  })
+  .catch((error) => {
+    console.error("Error loading images:", error);
+  });
 
 setInterval(() => {
   if (magnet.statusMaget) {
@@ -366,9 +364,4 @@ setInterval(() => {
     startInterval(); // Mulai interval
     magnet.statusMaget = true;
   }
-}, 5000); // Ulangi setiap 5 detik
-
-ahogeImage.onload = () => {
-  animateAhoge();
-};
-// animateAhoge();
+}, 10000); // Ulangi setiap 5 detik
