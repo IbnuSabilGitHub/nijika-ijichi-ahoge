@@ -25,20 +25,13 @@ let targetY = 115; // Posisi y ahoge dalam gambar asli
 let targetWidth = 30; // Lebar area ahoge
 let targetHeight = 40; // Tinggi area ahoge
 
-//
 let isOn = false; // Status awal
-const intervalTime = 500; // Jeda waktu dalam milidetik (1 detik)
-let intervalId; // Menyimpan ID interval
-// Fungsi untuk memulai interval ryo eat
-function startInterval() {
-  intervalId = setInterval(() => {
-    if (ahogeToRemove.length > 0 && magnet.statusMaget) {
-      // Mengubah status switch
-      isOn = !isOn; // Toggle status
-      // console.log(`Switch is now: ${isOn ? "ON" : "OFF"}`);
-    }
-  }, intervalTime);
-}
+const getEating = new Audio("/public/assets/sound/eating-effect-254996.mp3");
+let removalInterval = 1000; // Interval waktu penghapusan dalam milidetik
+let lastRemovalTime = 0; // Waktu penghapusan terakhir
+getEating.addEventListener("canplaythrough", () => {
+  removalInterval = getEating.duration * 1000; // Konversi ke milidetik
+});
 
 // Fungsi untuk membuat ahoge baru
 function createAhoge(x, y) {
@@ -177,7 +170,7 @@ Promise.all([
     }
 
     // Fungsi untuk mengupdate posisi dan rotasi ahoge
-    function animateAhoge() {
+    function animateAhoge(timestamp) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       // Teks di kanvas
       const text = "Developed by IBNU with ❤️";
@@ -223,6 +216,27 @@ Promise.all([
           magnetImage.width,
           magnetImage.height
         );
+
+        if (isOn && ahoge.length > 10 && ahogeToRemove.length > 0) {
+          // Cek apakah sudah melewati interval penghapusan
+          if (timestamp - lastRemovalTime >= removalInterval) {
+            const index = Math.floor(Math.random() * ahoge.length); // Pilih index acak
+            ahoge.splice(index, 1); // Hapus satu item dari array
+            const eating = new Audio(
+              "/public/assets/sound/eating-effect-254996.mp3"
+            );
+            eating.addEventListener("canplaythrough", () => {
+              eating.play();
+            });
+            lastRemovalTime = timestamp; // Perbarui waktu penghapusan terakhir
+            isOn = false; // Set isOn ke false untuk menunggu sampai interval berikutnya
+          }
+        } else {
+          // Jika isOn adalah false, aktifkan lagi setelah interval berakhir
+          if (timestamp - lastRemovalTime >= removalInterval) {
+            isOn = true;
+          }
+        }
       }
 
       handleCollisions(); // Tangani tabrakan
@@ -254,7 +268,7 @@ Promise.all([
             p.vy *= damping;
 
             // tandai ahoge yang akan dihapus jika tertarik di mangnet
-            if (distance < 51) {
+            if (distance <= 50) {
               ahogeToRemove.push(index);
             }
           }
@@ -281,25 +295,26 @@ Promise.all([
         ctx.translate(p.x, p.y); // Pindahkan titik tengah ke posisi ahoge
         ctx.rotate((p.rotation * Math.PI) / 180); // Rotasi dalam radian
         // Ukuran ahoge berdasarkan layar
-        const ahogeWidth = window.innerWidth < 420 ? 20 : 40; 
-        const ahogeHeight = window.innerWidth < 420 ? 20 : 40; 
+        const ahogeWidth = window.innerWidth < 420 ? 20 : 40;
+        const ahogeHeight = window.innerWidth < 420 ? 20 : 40;
         ctx.drawImage(ahogeImage, -15, -15, ahogeWidth, ahogeHeight); // Gambar ahoge
         ctx.restore(); // Kembalikan keadaan kanvas
       });
 
-      // Hapus ahoge yang sudah dihapus hanya jika magnet aktif dengan jedah waktu
-      if (isOn && ahoge.length > 10) {
-        const index = Math.floor(Math.random() * ahogeToRemove.length); // Pilih index acak
-        ahoge.splice(index, 1); // Hapus dari array particles
-      }
+      // // Hapus ahoge yang sudah dihapus hanya jika magnet aktif dengan jedah waktu
+      // if (isOn && ahoge.length > 10) {
+      //   const index = Math.floor(Math.random() * ahogeToRemove.length); // Pilih index acak
+      //   ahoge.splice(index, 1); // Hapus dari array particles
+      //   // setTimeout(() => {
+      //   isOn = false; //matikan peghapusan
+      //   // }, 100);
+      // }
 
       requestAnimationFrame(animateAhoge); // Ulangi animasi
     }
 
-
     // Event listener untuk klik pada kanvas
     canvas.addEventListener("click", (event) => {
-
       // Ambil posisi klik
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
@@ -353,7 +368,7 @@ setInterval(() => {
       p.vx += (Math.random() - 0.5) * 4;
       p.vy += (Math.random() - 0.5) * 4;
     });
-    clearInterval(intervalId); // Hentikan interval
+    // clearInterval(intervalId); // Hentikan interval
     isOn = false; //matikan peghapusan
     ahogeToRemove = []; // Reset array
     magnet.statusMaget = false;
@@ -361,7 +376,6 @@ setInterval(() => {
     // Mengaktifkan magnet dengan posisi acak
     magnet.x = Math.random() * canvas.width;
     magnet.y = Math.random() * canvas.height;
-    startInterval(); // Mulai interval
     magnet.statusMaget = true;
   }
-}, 10000); // Ulangi setiap 5 detik
+}, 10000);
