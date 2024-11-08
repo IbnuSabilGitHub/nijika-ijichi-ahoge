@@ -286,9 +286,12 @@ Promise.all([
         p.rotation += p.rotationSpeed;
         p.rotationSpeed *= 1 - p.rotationSlowdown;
 
-        // Batasi partikel di dalam layar dan pantulkan jika perlu
+        // Batasi partikel di dalam layar
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+
+
 
         // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
         ctx.save(); // Simpan keadaan kanvas
@@ -366,9 +369,9 @@ setInterval(() => {
     eating.pause(); // Hentikan suara
     magnet.statusMaget = false;
   } else {
-    // Mengaktifkan magnet dengan posisi acak
-    magnet.x = Math.random() * canvas.width;
-    magnet.y = Math.random() * canvas.height;
+    // Mengaktifkan magnet dengan posisi acak di kanvas
+    magnet.x = Math.random() * canvas.width * 0.9; 
+    magnet.y = Math.random() * canvas.height * 0.9;
     magnet.statusMaget = true;
   }
-}, 15000);
+}, 10000);
