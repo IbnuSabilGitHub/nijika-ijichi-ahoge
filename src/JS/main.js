@@ -8,7 +8,10 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth; // Lebar kanvas mengikuti lebar layar
 canvas.height = window.innerHeight; // leabr kanvas mengikuti tinggi layar
-
+const eating = new Audio(
+  "/public/assets/sound/eating-effect-254996.mp3"
+);
+eating.load();
 // Setting untuk Ahoge flying
 const ahoge = []; // Array untuk menyimpan semua ahoge
 const ahogeCount = 0; // untuk meyimkan jumlah ahoge
@@ -26,11 +29,11 @@ let targetWidth = 30; // Lebar area ahoge
 let targetHeight = 40; // Tinggi area ahoge
 
 let isOn = false; // Status awal
-const getEating = new Audio("/public/assets/sound/eating-effect-254996.mp3");
+// const getEating = new Audio("/public/assets/sound/eating-effect-254996.mp3");
 let removalInterval = 1000; // Interval waktu penghapusan dalam milidetik
 let lastRemovalTime = 0; // Waktu penghapusan terakhir
-getEating.addEventListener("canplaythrough", () => {
-  removalInterval = getEating.duration * 1000; // Konversi ke milidetik
+eating.addEventListener("canplaythrough", () => {
+  removalInterval = eating.duration * 1000; // Konversi ke milidetik
 });
 
 // Fungsi untuk membuat ahoge baru
@@ -220,14 +223,10 @@ Promise.all([
         if (isOn && ahoge.length > 10 && ahogeToRemove.length > 0) {
           // Cek apakah sudah melewati interval penghapusan
           if (timestamp - lastRemovalTime >= removalInterval) {
-            const index = Math.floor(Math.random() * ahoge.length); // Pilih index acak
+            const index = ahogeToRemove.shift(); // Pilih index acak
             ahoge.splice(index, 1); // Hapus satu item dari array
-            const eating = new Audio(
-              "/public/assets/sound/eating-effect-254996.mp3"
-            );
-            eating.addEventListener("canplaythrough", () => {
-              eating.play();
-            });
+
+            eating.play();
             lastRemovalTime = timestamp; // Perbarui waktu penghapusan terakhir
             isOn = false; // Set isOn ke false untuk menunggu sampai interval berikutnya
           }
@@ -268,11 +267,12 @@ Promise.all([
             p.vy *= damping;
 
             // tandai ahoge yang akan dihapus jika tertarik di mangnet
-            if (distance <= 50) {
+            if (distance <= 50 && !ahogeToRemove.includes(index)) {
               ahogeToRemove.push(index);
             }
           }
         }
+        console.log(ahogeToRemove);
 
         p.x += p.vx; // Update posisi ahoge
         p.y += p.vy; // Update posisi ahoge
@@ -301,14 +301,6 @@ Promise.all([
         ctx.restore(); // Kembalikan keadaan kanvas
       });
 
-      // // Hapus ahoge yang sudah dihapus hanya jika magnet aktif dengan jedah waktu
-      // if (isOn && ahoge.length > 10) {
-      //   const index = Math.floor(Math.random() * ahogeToRemove.length); // Pilih index acak
-      //   ahoge.splice(index, 1); // Hapus dari array particles
-      //   // setTimeout(() => {
-      //   isOn = false; //matikan peghapusan
-      //   // }, 100);
-      // }
 
       requestAnimationFrame(animateAhoge); // Ulangi animasi
     }
@@ -343,7 +335,7 @@ Promise.all([
         );
         soundAhoge.play();
 
-        const originalValue = nijikaCondition; // simpan nilai asli
+        const originalValue = false; // simpan nilai asli
         nijikaCondition = !nijikaCondition; // ubah nilai
         // Tunggu 100ms sebelum mengembalikan nilai asli
         setTimeout(() => {
@@ -371,6 +363,7 @@ setInterval(() => {
     // clearInterval(intervalId); // Hentikan interval
     isOn = false; //matikan peghapusan
     ahogeToRemove = []; // Reset array
+    eating.pause(); // Hentikan suara
     magnet.statusMaget = false;
   } else {
     // Mengaktifkan magnet dengan posisi acak
@@ -378,4 +371,4 @@ setInterval(() => {
     magnet.y = Math.random() * canvas.height;
     magnet.statusMaget = true;
   }
-}, 10000);
+}, 15000);
