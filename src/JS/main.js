@@ -8,9 +8,7 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth; // Lebar kanvas mengikuti lebar layar
 canvas.height = window.innerHeight; // leabr kanvas mengikuti tinggi layar
-const eating = new Audio(
-  "/public/assets/sound/eating-effect-254996.mp3"
-);
+const eating = new Audio("/public/assets/sound/eating-effect-254996.mp3");
 eating.load();
 // Setting untuk Ahoge flying
 const ahoge = []; // Array untuk menyimpan semua ahoge
@@ -35,6 +33,18 @@ let lastRemovalTime = 0; // Waktu penghapusan terakhir
 eating.addEventListener("canplaythrough", () => {
   removalInterval = eating.duration * 1000; // Konversi ke milidetik
 });
+
+const doritos = {
+  x: canvas.width / 2,
+  y: 50, // Posisi awal di atas
+  vy: 0, // Kecepatan vertikal awal
+  vx: 2, // Kecepatan horizontal
+  gravity: 0.2, // Akselerasi gravitasi
+  bounce: 0.1, // Faktor pantulan
+  fill: 0,
+  width: 60,
+  height: 60,
+};
 
 // Fungsi untuk membuat ahoge baru
 function createAhoge(x, y) {
@@ -134,6 +144,7 @@ const nijikaImageSrcs = [
 ];
 const logoImageSrc = "/public/assets/image/Kessoku_Band_Logo.svg";
 const magnetImageSrc = "/public/assets/image/eww_people.png";
+const doritosImageSrc = "/public/assets/image/doritos.webp";
 
 // Muat semua gambar sekaligus
 Promise.all([
@@ -142,10 +153,12 @@ Promise.all([
   loadImage(nijikaImageSrcs[1]),
   loadImage(logoImageSrc),
   loadImage(magnetImageSrc),
+  loadImage(doritosImageSrc),
 ])
   .then((images) => {
     // Setelah semua gambar dimuat, akses masing-masing gambar dari array `images`
-    const [ahogeImage, nijika0, nijika1, logo, magnetImage] = images;
+    const [ahogeImage, nijika0, nijika1, logo, magnetImage, doritosImage] =
+      images;
 
     // Gunakan gambar yang sudah dimuat, misalnya simpan dalam variabel
     let nijikaCondition = false;
@@ -201,6 +214,28 @@ Promise.all([
         (canvas.height - logo.height) / 4,
         0.3
       );
+
+      // Gambar doritos di kanvas
+      if (ahoge.length > 10) {
+        drawImage(
+          ctx,
+          doritosImage,
+          doritos.x,
+          doritos.y,
+          1,
+          doritos.width,
+          doritos.height
+        );
+        doritos.vy += doritos.gravity; // Update kecepatan doritos
+        doritos.y += doritos.vy; // Update posisi doritos
+
+        // Jika doritos menyentuh dasar kanvas
+        if (doritos.y + doritos.height > canvas.height) {
+          doritos.y = canvas.height - doritos.height; // Atur posisi doritos
+          doritos.vy *= -doritos.bounce; // Pantulkan doritos
+        }
+        
+      }
 
       // Gambar magnet di kanvas hnay jika magnet aktif dan ahoge lebih dari 10
       if (magnet.statusMaget && ahoge.length > 10) {
@@ -290,9 +325,6 @@ Promise.all([
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-
-
-
         // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
         ctx.save(); // Simpan keadaan kanvas
         ctx.translate(p.x, p.y); // Pindahkan titik tengah ke posisi ahoge
@@ -303,7 +335,6 @@ Promise.all([
         ctx.drawImage(ahogeImage, -15, -15, ahogeWidth, ahogeHeight); // Gambar ahoge
         ctx.restore(); // Kembalikan keadaan kanvas
       });
-
 
       requestAnimationFrame(animateAhoge); // Ulangi animasi
     }
@@ -370,7 +401,7 @@ setInterval(() => {
     magnet.statusMaget = false;
   } else {
     // Mengaktifkan magnet dengan posisi acak di kanvas
-    magnet.x = Math.random() * canvas.width * 0.9; 
+    magnet.x = Math.random() * canvas.width * 0.9;
     magnet.y = Math.random() * canvas.height * 0.9;
     magnet.statusMaget = true;
   }
