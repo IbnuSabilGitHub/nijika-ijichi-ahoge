@@ -34,6 +34,15 @@ eating.addEventListener("canplaythrough", () => {
   removalInterval = eating.duration * 1000; // Konversi ke milidetik
 });
 
+// Pilih arah rotasi -180 atau 180 derajat
+const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
+
+// Tentukan kecepatan rotasi berdasarkan rentang (rotasi lambat)
+const randomRotationSpeed =
+  randomRotationDirection *
+  (Math.random() * (rotationSpeedRange.max - rotationSpeedRange.min) +
+    rotationSpeedRange.min);
+
 const doritos = {
   x: Math.random() * canvas.width * 0.9,
   y: 0, // Posisi awal di atas
@@ -42,25 +51,17 @@ const doritos = {
   gravity: 0.05, // Akselerasi gravitasi
   bounce: 0.8, // Faktor pantulan
   rotation: 0, // Sudut rotasi awal
-  spin: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi
+  spin: randomRotationSpeed, // Kecepatan rotasi
   friction: 0.99, // Faktor gesekan horizontal
   bounce: 0.2,
   fill: 0,
   width: 80,
   height: 80,
+  isOnGround: false, // Status doritos di tanah
 };
 
 // Fungsi untuk membuat ahoge baru
 function createAhoge(x, y) {
-  // Pilih arah rotasi -180 atau 180 derajat
-  const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
-
-  // Tentukan kecepatan rotasi berdasarkan rentang (rotasi lambat)
-  const randomRotationSpeed =
-    randomRotationDirection *
-    (Math.random() * (rotationSpeedRange.max - rotationSpeedRange.min) +
-      rotationSpeedRange.min);
-
   // Inisialisasi data ahoge
   ahoge.push({
     x: x,
@@ -225,7 +226,7 @@ Promise.all([
 
         ctx.save(); // Simpan keadaan kanvas
         ctx.translate(doritos.x, doritos.y); // Pindahkan titik tengah ke posisi ahoge
-        ctx.rotate(doritos.rotation); // Rotasi dalam radian
+        ctx.rotate((doritos.rotation * Math.PI) / 180); // Rotasi dalam radian
         ctx.drawImage(
           doritosImage,
           -doritos.width / 2,
@@ -240,15 +241,40 @@ Promise.all([
         doritos.vy += doritos.gravity;
         // Perbarui posisi bola
         doritos.y += doritos.vy;
+        console.log(doritos.rotation);
 
 
         // Pantulan jika bola mencapai dasar canvas
         if (doritos.y + doritos.height > canvas.height) {
-          doritos.y = canvas.height - doritos.height /2; // Atur posisi doritos
+          doritos.y = canvas.height - doritos.height / 2; // Atur posisi doritos
           doritos.vy *= -doritos.bounce; // Pantulkan doritos
-        }else{
-          doritos.rotation += doritos.spin; // Perbarui rotasi
+          doritos.isOnGround = true; // Set status doritos di tanah
 
+          
+          // Sesuaikan rotasi dengan penyesuaian bertahap
+          if (doritos.rotation >= 0 && doritos.rotation < 45) {
+            // Menyesuaikan dengan penurunan bertahap menuju 0°
+            doritos.rotation -= 1;
+            if (doritos.rotation <= 0) doritos.rotation = 0;
+          } else if (doritos.rotation >= 45 && doritos.rotation < 135) {
+            // Menyesuaikan dengan penambahan bertahap menuju 90°
+            doritos.rotation += 1;
+            if (doritos.rotation >= 90) doritos.rotation = 90;
+          } else if (doritos.rotation >= 135 && doritos.rotation < 225) {
+            // Menyesuaikan dengan penambahan bertahap menuju 180°
+            doritos.rotation += 1;
+            if (doritos.rotation >= 180) doritos.rotation = 180;
+          } else if (doritos.rotation >= 225 && doritos.rotation < 315) {
+            // Menyesuaikan dengan penambahan bertahap menuju 270°
+            doritos.rotation += 1;
+            if (doritos.rotation >= 270) doritos.rotation = 270;
+          } else {
+            // Menyesuaikan dengan penurunan bertahap menuju 0°
+            doritos.rotation -= 1;
+            if (doritos.rotation <= 0) doritos.rotation = 0;
+          }
+        } else {
+          doritos.rotation = (doritos.rotation + doritos.spin + 360) % 360; // Perbarui rotasi
         }
       }
 
