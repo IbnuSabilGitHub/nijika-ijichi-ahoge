@@ -35,15 +35,19 @@ eating.addEventListener("canplaythrough", () => {
 });
 
 const doritos = {
-  x: canvas.width / 2,
-  y: 50, // Posisi awal di atas
-  vy: 0, // Kecepatan vertikal awal
-  vx: 2, // Kecepatan horizontal
-  gravity: 0.2, // Akselerasi gravitasi
-  bounce: 0.1, // Faktor pantulan
+  x: Math.random() * canvas.width * 0.9,
+  y: 0, // Posisi awal di atas
+  vy: 0.2, // Kecepatan vertikal awal
+  vx: 0, // Kecepatan horizontal
+  gravity: 0.05, // Akselerasi gravitasi
+  bounce: 0.8, // Faktor pantulan
+  rotation: 0, // Sudut rotasi awal
+  spin: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi
+  friction: 0.99, // Faktor gesekan horizontal
+  bounce: 0.2,
   fill: 0,
-  width: 60,
-  height: 60,
+  width: 80,
+  height: 80,
 };
 
 // Fungsi untuk membuat ahoge baru
@@ -217,24 +221,35 @@ Promise.all([
 
       // Gambar doritos di kanvas
       if (ahoge.length > 10) {
-        drawImage(
-          ctx,
+        // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
+
+        ctx.save(); // Simpan keadaan kanvas
+        ctx.translate(doritos.x, doritos.y); // Pindahkan titik tengah ke posisi ahoge
+        ctx.rotate(doritos.rotation); // Rotasi dalam radian
+        ctx.drawImage(
           doritosImage,
-          doritos.x,
-          doritos.y,
-          1,
+          -doritos.width / 2,
+          -doritos.height / 2,
           doritos.width,
           doritos.height
-        );
-        doritos.vy += doritos.gravity; // Update kecepatan doritos
-        doritos.y += doritos.vy; // Update posisi doritos
+        ); // Gambar ahoge
+        ctx.restore(); // Simpan keadaan kanvas
 
-        // Jika doritos menyentuh dasar kanvas
+        // drawImage(ctx, doritosImage, doritos.x, doritos.y, 1, 60, 60);
+        // Tambahkan gravitasi ke kecepatan y
+        doritos.vy += doritos.gravity;
+        // Perbarui posisi bola
+        doritos.y += doritos.vy;
+
+
+        // Pantulan jika bola mencapai dasar canvas
         if (doritos.y + doritos.height > canvas.height) {
-          doritos.y = canvas.height - doritos.height; // Atur posisi doritos
+          doritos.y = canvas.height - doritos.height /2; // Atur posisi doritos
           doritos.vy *= -doritos.bounce; // Pantulkan doritos
+        }else{
+          doritos.rotation += doritos.spin; // Perbarui rotasi
+
         }
-        
       }
 
       // Gambar magnet di kanvas hnay jika magnet aktif dan ahoge lebih dari 10
@@ -245,15 +260,6 @@ Promise.all([
         const centerY = magnet.y - magnetImage.height / 2; // Pusat gambar di y
 
         // Gambar magnet di kanvas dengan posisi acak
-        drawImage(
-          ctx,
-          magnetImage,
-          centerX,
-          centerY,
-          1,
-          magnetImage.width,
-          magnetImage.height
-        );
 
         if (isOn && ahoge.length > 10 && ahogeToRemove.length > 0) {
           // Cek apakah sudah melewati interval penghapusan
@@ -307,7 +313,6 @@ Promise.all([
             }
           }
         }
-        console.log(ahogeToRemove);
 
         p.x += p.vx; // Update posisi ahoge
         p.y += p.vy; // Update posisi ahoge
