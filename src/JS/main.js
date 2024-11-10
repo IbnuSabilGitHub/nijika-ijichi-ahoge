@@ -55,9 +55,12 @@ const doritos = {
   friction: 0.99, // Faktor gesekan horizontal
   bounce: 0.2,
   fill: 0,
-  width: 80,
-  height: 80,
+  width: 120,
+  height: 120,
   isOnGround: false, // Status doritos di tanah
+  isDragging: false, // Status doritos sedang ditarik
+  offsetX: 0, //
+  offsetY: 0,
 };
 
 // Fungsi untuk membuat ahoge baru
@@ -234,23 +237,27 @@ Promise.all([
           doritos.width,
           doritos.height
         ); // Gambar ahoge
+
         ctx.restore(); // Simpan keadaan kanvas
 
         // drawImage(ctx, doritosImage, doritos.x, doritos.y, 1, 60, 60);
         // Tambahkan gravitasi ke kecepatan y
-        doritos.vy += doritos.gravity;
         // Perbarui posisi bola
-        doritos.y += doritos.vy;
-        console.log(doritos.rotation);
-
 
         // Pantulan jika bola mencapai dasar canvas
         if (doritos.y + doritos.height > canvas.height) {
           doritos.y = canvas.height - doritos.height / 2; // Atur posisi doritos
           doritos.vy *= -doritos.bounce; // Pantulkan doritos
           doritos.isOnGround = true; // Set status doritos di tanah
+        } else {
+          if (!doritos.isDragging) {
+            doritos.vy += doritos.gravity;
+            doritos.y += doritos.vy;
+            doritos.rotation = (doritos.rotation + doritos.spin + 360) % 360; // Perbarui rotasi
+          }
+        }
 
-          
+        if (doritos.isOnGround) {
           // Sesuaikan rotasi dengan penyesuaian bertahap
           if (doritos.rotation >= 0 && doritos.rotation < 45) {
             // Menyesuaikan dengan penurunan bertahap menuju 0°
@@ -273,8 +280,6 @@ Promise.all([
             doritos.rotation -= 2;
             if (doritos.rotation <= 0) doritos.rotation = 0;
           }
-        } else {
-          doritos.rotation = (doritos.rotation + doritos.spin + 360) % 360; // Perbarui rotasi
         }
       }
 
@@ -327,7 +332,6 @@ Promise.all([
           let dx = magnet.x - p.x; // Hitung jarak antara ahoge dan magnet
           let dy = magnet.y - p.y; // Hitung jarak antara ahoge dan magnet
           let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy)); // gunakan euclidean distance untuk menghitung jarak
-          // console.log(distance);
 
           // hanya tarik ahoge jika jarak lebih kecil dari jarak maksimum
           if (distance < maxDistance) {
@@ -383,8 +387,8 @@ Promise.all([
     canvas.addEventListener("click", (event) => {
       // Ambil posisi klik
       const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
 
       const imgWidth = nijika.width;
       const imgHeight = nijika.height;
@@ -399,10 +403,10 @@ Promise.all([
 
       // Cek apakah klik berada di area target (mata)
       if (
-        x > targetCanvasX &&
-        x < targetCanvasX + targetCanvasWidth &&
-        y > targetCanvasY &&
-        y < targetCanvasY + targetCanvasHeight
+        mouseX > targetCanvasX &&
+        mouseX < targetCanvasX + targetCanvasWidth &&
+        mouseY > targetCanvasY &&
+        mouseY < targetCanvasY + targetCanvasHeight
       ) {
         const soundAhoge = new Audio(
           "/public/assets/sound/happy-pop-2-185287.mp3"
@@ -415,8 +419,48 @@ Promise.all([
         setTimeout(() => {
           nijikaCondition = originalValue;
         }, 300);
-        createAhoge(x, y);
+        createAhoge(mouseX, mouseY);
       }
+    });
+
+    canvas.addEventListener("mousedown", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      if (
+        mouseX >= doritos.x &&
+        mouseX <= doritos.x + doritos.width &&
+        mouseY >= doritos.y &&
+        mouseY <= doritos.y + doritos.height
+      ) {
+        doritos.isDragging = true;
+        doritos.offsetX = mouseX - doritos.x;
+        doritos.offsetY = mouseY - doritos.y;
+        console.log("Doritos clicked");
+      }
+    });
+    canvas.addEventListener("mousemove", (e) => {
+      if (doritos.isDragging) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        doritos.isOnGround = false; // Set status doritos di tanah menjadi false
+
+        // Update posisi gambar
+        doritos.x = mouseX - doritos.offsetX;
+        doritos.y = mouseY - doritos.offsetY;
+
+        // Bersihkan canvas dan gambar ulang gambar di posisi baru
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      doritos.isDragging = false;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      doritos.isDragging = false;
     });
 
     animateAhoge(); // Mulai animasi
