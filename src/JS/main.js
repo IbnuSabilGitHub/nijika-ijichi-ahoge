@@ -254,23 +254,23 @@ Promise.all([
           // Sesuaikan rotasi dengan penyesuaian bertahap
           if (doritos.rotation >= 0 && doritos.rotation < 45) {
             // Menyesuaikan dengan penurunan bertahap menuju 0°
-            doritos.rotation -= 1;
+            doritos.rotation -= 2;
             if (doritos.rotation <= 0) doritos.rotation = 0;
           } else if (doritos.rotation >= 45 && doritos.rotation < 135) {
             // Menyesuaikan dengan penambahan bertahap menuju 90°
-            doritos.rotation += 1;
+            doritos.rotation += 2;
             if (doritos.rotation >= 90) doritos.rotation = 90;
           } else if (doritos.rotation >= 135 && doritos.rotation < 225) {
             // Menyesuaikan dengan penambahan bertahap menuju 180°
-            doritos.rotation += 1;
+            doritos.rotation += 2;
             if (doritos.rotation >= 180) doritos.rotation = 180;
           } else if (doritos.rotation >= 225 && doritos.rotation < 315) {
             // Menyesuaikan dengan penambahan bertahap menuju 270°
-            doritos.rotation += 1;
+            doritos.rotation += 2;
             if (doritos.rotation >= 270) doritos.rotation = 270;
           } else {
             // Menyesuaikan dengan penurunan bertahap menuju 0°
-            doritos.rotation -= 1;
+            doritos.rotation -= 2;
             if (doritos.rotation <= 0) doritos.rotation = 0;
           }
         } else {
@@ -286,6 +286,15 @@ Promise.all([
         const centerY = magnet.y - magnetImage.height / 2; // Pusat gambar di y
 
         // Gambar magnet di kanvas dengan posisi acak
+        drawImage(
+          ctx,
+          magnetImage,
+          centerX,
+          centerY,
+          1,
+          magnetImage.width,
+          magnetImage.height
+        );
 
         if (isOn && ahoge.length > 10 && ahogeToRemove.length > 0) {
           // Cek apakah sudah melewati interval penghapusan
