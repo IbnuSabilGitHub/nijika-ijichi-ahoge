@@ -429,10 +429,10 @@ Promise.all([
       const mouseY = e.clientY - rect.top;
 
       if (
-        mouseX >= doritos.x &&
-        mouseX <= doritos.x + doritos.width &&
-        mouseY >= doritos.y &&
-        mouseY <= doritos.y + doritos.height
+        mouseX >= doritos.x - doritos.width / 2 &&
+        mouseX <= doritos.x + doritos.width / 2 &&
+        mouseY >= doritos.y - doritos.height / 2 &&
+        mouseY <= doritos.y + doritos.height / 2
       ) {
         doritos.isDragging = true;
         doritos.offsetX = mouseX - doritos.x;
