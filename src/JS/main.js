@@ -34,34 +34,43 @@ eating.addEventListener("canplaythrough", () => {
   removalInterval = eating.duration * 1000; // Konversi ke milidetik
 });
 
-// Pilih arah rotasi -180 atau 180 derajat
-const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
+function randomRotation(min, max) {
+  // Pilih arah rotasi -180 atau 180 derajat
+  const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
+  // Tentukan kecepatan rotasi berdasarkan rentang (rotasi lambat)
+  const randomRotationSpeed =
+    randomRotationDirection * (Math.random() * (min - max) + max);
+  return randomRotationSpeed;
+}
 
-// Tentukan kecepatan rotasi berdasarkan rentang (rotasi lambat)
-const randomRotationSpeed =
-  randomRotationDirection *
-  (Math.random() * (rotationSpeedRange.max - rotationSpeedRange.min) +
-    rotationSpeedRange.min);
+class Doritos {
+  constructor() {
+    this.reset();
+  }
 
-const doritos = {
-  x: Math.random() * canvas.width * 0.9,
-  y: 0, // Posisi awal di atas
-  vy: 0.2, // Kecepatan vertikal awal
-  vx: 0, // Kecepatan horizontal
-  gravity: 0.05, // Akselerasi gravitasi
-  bounce: 0.8, // Faktor pantulan
-  rotation: 0, // Sudut rotasi awal
-  spin: randomRotationSpeed, // Kecepatan rotasi
-  friction: 0.99, // Faktor gesekan horizontal
-  bounce: 0.2,
-  fill: 0,
-  width: 120,
-  height: 120,
-  isOnGround: false, // Status doritos di tanah
-  isDragging: false, // Status doritos sedang ditarik
-  offsetX: 0, //
-  offsetY: 0,
-};
+  reset() {
+    this.x = Math.random() * canvas.width * 0.9;
+    this.y = 0;
+    this.vy = 0.2;
+    this.vx = 0;
+    this.gravity = 0.03;
+    this.bounce = 0.8;
+    this.spin = randomRotation(0, 2);
+    this.friction = 0.99;
+    this.rotation = 0;
+    this.fill = 0;
+    this.width = 120;
+    this.height = 120;
+    this.isOnGround = false;
+    this.isDragging = false;
+    this.spawn = false;
+    this.offsetX = 0;
+    this.offsetY = 0;
+  }
+}
+
+// Membuat objek doritos
+let doritos = new Doritos();
 
 // Fungsi untuk membuat ahoge baru
 function createAhoge(x, y) {
@@ -80,7 +89,7 @@ function createAhoge(x, y) {
     angle: 0,
     angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
     rotation: 0, // Rotasi ahoge
-    rotationSpeed: randomRotationSpeed, // Kecepatan rotasi yang lebih lambat
+    rotationSpeed: randomRotation(0,5), // Kecepatan rotasi yang lebih lambat
     radius: Math.random() * 50 + 50, // Jarak untuk rotasi
     rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
   });
@@ -249,11 +258,12 @@ Promise.all([
           doritos.y = canvas.height - doritos.height / 2; // Atur posisi doritos
           doritos.vy *= -doritos.bounce; // Pantulkan doritos
           doritos.isOnGround = true; // Set status doritos di tanah
+          doritos.spawn = true; // Set status doritos muncul
         } else {
           if (!doritos.isDragging) {
+            doritos.rotation = (doritos.rotation + doritos.spin + 360) % 360; // Perbarui rotasi
             doritos.vy += doritos.gravity;
             doritos.y += doritos.vy;
-            doritos.rotation = (doritos.rotation + doritos.spin + 360) % 360; // Perbarui rotasi
           }
         }
 
@@ -282,6 +292,8 @@ Promise.all([
           }
         }
       }
+
+      if (ahoge.length <= 10) doritos.reset();
 
       // Gambar magnet di kanvas hnay jika magnet aktif dan ahoge lebih dari 10
       if (magnet.statusMaget && ahoge.length > 10) {
@@ -445,22 +457,29 @@ Promise.all([
         const rect = canvas.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
+        const distance = mouseX - doritos.startX;
+
         doritos.isOnGround = false; // Set status doritos di tanah menjadi false
 
         // Update posisi gambar
         doritos.x = mouseX - doritos.offsetX;
         doritos.y = mouseY - doritos.offsetY;
+        doritos.rotation = distance; // Rotasi berdasarkan jarak
+        doritos.startX = mouseX; // Perbarui posisi awal
 
-        // Bersihkan canvas dan gambar ulang gambar di posisi baru
       }
     });
 
     canvas.addEventListener("mouseup", () => {
       doritos.isDragging = false;
+      doritos.spin = randomRotation(0, 1)
+      console.log(randomRotation(0, 1));
     });
 
     canvas.addEventListener("mouseleave", () => {
       doritos.isDragging = false;
+      doritos.spin = randomRotation(0, 1)
+      console.log(randomRotation(0, 1));
     });
 
     animateAhoge(); // Mulai animasi
