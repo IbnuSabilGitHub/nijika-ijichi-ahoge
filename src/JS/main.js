@@ -59,8 +59,8 @@ class Doritos {
     this.friction = 0.99;
     this.rotation = 0;
     this.fill = 0;
-    this.width = 120;
-    this.height = 120;
+    this.width = 80;
+    this.height = 80;
     this.isOnGround = false;
     this.isDragging = false;
     this.spawn = false;
@@ -232,7 +232,7 @@ Promise.all([
         0.3
       );
 
-      if (ahoge.length <= 10) doritos.reset();
+      // if (ahoge.length <= 10) doritos.reset();
 
       // Gambar magnet di kanvas hnay jika magnet aktif dan ahoge lebih dari 10
       if (magnet.statusMaget && ahoge.length > 10) {
@@ -256,7 +256,7 @@ Promise.all([
           // Cek apakah sudah melewati interval penghapusan
           if (timestamp - lastRemovalTime >= removalInterval) {
             const index = ahogeToRemove.shift(); // Pilih index acak
-            ahoge.splice(index, 1); // Hapus satu item dari array
+            // Hapus satu item dari array
 
             eating.play();
             lastRemovalTime = timestamp; // Perbarui waktu penghapusan terakhir
@@ -304,6 +304,16 @@ Promise.all([
           }
         }
 
+        if (doritos.isDragging) {
+          let distance = Math.sqrt(
+            (doritos.x - p.x) ** 2 + (doritos.y - p.y) ** 2
+          ); // gunakan euclidean distance untuk menghitung jarak
+          if (distance < doritos.width / 2) {
+            ahoge.splice(index, 1); // Hapus ahoge
+            doritos.fill += 1; // Tambahkan nilai doritos
+          }
+        }
+
         p.x += p.vx; // Update posisi ahoge
         p.y += p.vy; // Update posisi ahoge
 
@@ -331,7 +341,7 @@ Promise.all([
         ctx.restore(); // Kembalikan keadaan kanvas
       });
       // Gambar doritos di kanvas
-      if (ahoge.length > 10) {
+      if (ahoge.length > 10 || doritos.spawn) {
         // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
 
         ctx.save(); // Simpan keadaan kanvas
@@ -448,7 +458,6 @@ Promise.all([
         doritos.isDragging = true;
         doritos.offsetX = mouseX - doritos.x;
         doritos.offsetY = mouseY - doritos.y;
-        console.log("Doritos clicked");
       }
     });
     canvas.addEventListener("mousemove", (e) => {
@@ -471,13 +480,11 @@ Promise.all([
     canvas.addEventListener("mouseup", () => {
       doritos.isDragging = false;
       doritos.spin = randomRotation(0, 1);
-      console.log(randomRotation(0, 1));
     });
 
     canvas.addEventListener("mouseleave", () => {
       doritos.isDragging = false;
       doritos.spin = randomRotation(0, 1);
-      console.log(randomRotation(0, 1));
     });
 
     animateAhoge(); // Mulai animasi
