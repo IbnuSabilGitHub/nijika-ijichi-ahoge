@@ -89,7 +89,7 @@ function createAhoge(x, y) {
     angle: 0,
     angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
     rotation: 0, // Rotasi ahoge
-    rotationSpeed: randomRotation(0,5), // Kecepatan rotasi yang lebih lambat
+    rotationSpeed: randomRotation(0, 5), // Kecepatan rotasi yang lebih lambat
     radius: Math.random() * 50 + 50, // Jarak untuk rotasi
     rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
   });
@@ -165,16 +165,16 @@ const doritosImageSrc = "/public/assets/image/doritos.webp";
 
 // Muat semua gambar sekaligus
 Promise.all([
+  loadImage(doritosImageSrc),
   loadImage(ahogeImageSrc),
   loadImage(nijikaImageSrcs[0]),
   loadImage(nijikaImageSrcs[1]),
   loadImage(logoImageSrc),
   loadImage(magnetImageSrc),
-  loadImage(doritosImageSrc),
 ])
   .then((images) => {
     // Setelah semua gambar dimuat, akses masing-masing gambar dari array `images`
-    const [ahogeImage, nijika0, nijika1, logo, magnetImage, doritosImage] =
+    const [doritosImage, ahogeImage, nijika0, nijika1, logo, magnetImage] =
       images;
 
     // Gunakan gambar yang sudah dimuat, misalnya simpan dalam variabel
@@ -231,67 +231,6 @@ Promise.all([
         (canvas.height - logo.height) / 4,
         0.3
       );
-
-      // Gambar doritos di kanvas
-      if (ahoge.length > 10) {
-        // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
-
-        ctx.save(); // Simpan keadaan kanvas
-        ctx.translate(doritos.x, doritos.y); // Pindahkan titik tengah ke posisi ahoge
-        ctx.rotate((doritos.rotation * Math.PI) / 180); // Rotasi dalam radian
-        ctx.drawImage(
-          doritosImage,
-          -doritos.width / 2,
-          -doritos.height / 2,
-          doritos.width,
-          doritos.height
-        ); // Gambar ahoge
-
-        ctx.restore(); // Simpan keadaan kanvas
-
-        // drawImage(ctx, doritosImage, doritos.x, doritos.y, 1, 60, 60);
-        // Tambahkan gravitasi ke kecepatan y
-        // Perbarui posisi bola
-
-        // Pantulan jika bola mencapai dasar canvas
-        if (doritos.y + doritos.height > canvas.height) {
-          doritos.y = canvas.height - doritos.height / 2; // Atur posisi doritos
-          doritos.vy *= -doritos.bounce; // Pantulkan doritos
-          doritos.isOnGround = true; // Set status doritos di tanah
-          doritos.spawn = true; // Set status doritos muncul
-        } else {
-          if (!doritos.isDragging) {
-            doritos.rotation = (doritos.rotation + doritos.spin + 360) % 360; // Perbarui rotasi
-            doritos.vy += doritos.gravity;
-            doritos.y += doritos.vy;
-          }
-        }
-
-        if (doritos.isOnGround) {
-          // Sesuaikan rotasi dengan penyesuaian bertahap
-          if (doritos.rotation >= 0 && doritos.rotation < 45) {
-            // Menyesuaikan dengan penurunan bertahap menuju 0°
-            doritos.rotation -= 2;
-            if (doritos.rotation <= 0) doritos.rotation = 0;
-          } else if (doritos.rotation >= 45 && doritos.rotation < 135) {
-            // Menyesuaikan dengan penambahan bertahap menuju 90°
-            doritos.rotation += 2;
-            if (doritos.rotation >= 90) doritos.rotation = 90;
-          } else if (doritos.rotation >= 135 && doritos.rotation < 225) {
-            // Menyesuaikan dengan penambahan bertahap menuju 180°
-            doritos.rotation += 2;
-            if (doritos.rotation >= 180) doritos.rotation = 180;
-          } else if (doritos.rotation >= 225 && doritos.rotation < 315) {
-            // Menyesuaikan dengan penambahan bertahap menuju 270°
-            doritos.rotation += 2;
-            if (doritos.rotation >= 270) doritos.rotation = 270;
-          } else {
-            // Menyesuaikan dengan penurunan bertahap menuju 0°
-            doritos.rotation -= 2;
-            if (doritos.rotation <= 0) doritos.rotation = 0;
-          }
-        }
-      }
 
       if (ahoge.length <= 10) doritos.reset();
 
@@ -391,6 +330,66 @@ Promise.all([
         ctx.drawImage(ahogeImage, -15, -15, ahogeWidth, ahogeHeight); // Gambar ahoge
         ctx.restore(); // Kembalikan keadaan kanvas
       });
+      // Gambar doritos di kanvas
+      if (ahoge.length > 10) {
+        // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
+
+        ctx.save(); // Simpan keadaan kanvas
+        ctx.translate(doritos.x, doritos.y); // Pindahkan titik tengah ke posisi ahoge
+        ctx.rotate((doritos.rotation * Math.PI) / 180); // Rotasi dalam radian
+        ctx.drawImage(
+          doritosImage,
+          -doritos.width / 2,
+          -doritos.height / 2,
+          doritos.width,
+          doritos.height
+        ); // Gambar ahoge
+
+        ctx.restore(); // Simpan keadaan kanvas
+
+        // drawImage(ctx, doritosImage, doritos.x, doritos.y, 1, 60, 60);
+        // Tambahkan gravitasi ke kecepatan y
+        // Perbarui posisi bola
+
+        // Pantulan jika bola mencapai dasar canvas
+        if (doritos.y + doritos.height > canvas.height) {
+          doritos.y = canvas.height - doritos.height / 2; // Atur posisi doritos
+          doritos.vy *= -doritos.bounce; // Pantulkan doritos
+          doritos.isOnGround = true; // Set status doritos di tanah
+          doritos.spawn = true; // Set status doritos muncul
+        } else {
+          if (!doritos.isDragging) {
+            doritos.rotation = (doritos.rotation + doritos.spin + 360) % 360; // Perbarui rotasi
+            doritos.vy += doritos.gravity;
+            doritos.y += doritos.vy;
+          }
+        }
+
+        if (doritos.isOnGround) {
+          // Sesuaikan rotasi dengan penyesuaian bertahap
+          if (doritos.rotation >= 0 && doritos.rotation < 45) {
+            // Menyesuaikan dengan penurunan bertahap menuju 0°
+            doritos.rotation -= 2;
+            if (doritos.rotation <= 0) doritos.rotation = 0;
+          } else if (doritos.rotation >= 45 && doritos.rotation < 135) {
+            // Menyesuaikan dengan penambahan bertahap menuju 90°
+            doritos.rotation += 2;
+            if (doritos.rotation >= 90) doritos.rotation = 90;
+          } else if (doritos.rotation >= 135 && doritos.rotation < 225) {
+            // Menyesuaikan dengan penambahan bertahap menuju 180°
+            doritos.rotation += 2;
+            if (doritos.rotation >= 180) doritos.rotation = 180;
+          } else if (doritos.rotation >= 225 && doritos.rotation < 315) {
+            // Menyesuaikan dengan penambahan bertahap menuju 270°
+            doritos.rotation += 2;
+            if (doritos.rotation >= 270) doritos.rotation = 270;
+          } else {
+            // Menyesuaikan dengan penurunan bertahap menuju 0°
+            doritos.rotation -= 2;
+            if (doritos.rotation <= 0) doritos.rotation = 0;
+          }
+        }
+      }
 
       requestAnimationFrame(animateAhoge); // Ulangi animasi
     }
@@ -466,19 +465,18 @@ Promise.all([
         doritos.y = mouseY - doritos.offsetY;
         doritos.rotation = distance; // Rotasi berdasarkan jarak
         doritos.startX = mouseX; // Perbarui posisi awal
-
       }
     });
 
     canvas.addEventListener("mouseup", () => {
       doritos.isDragging = false;
-      doritos.spin = randomRotation(0, 1)
+      doritos.spin = randomRotation(0, 1);
       console.log(randomRotation(0, 1));
     });
 
     canvas.addEventListener("mouseleave", () => {
       doritos.isDragging = false;
-      doritos.spin = randomRotation(0, 1)
+      doritos.spin = randomRotation(0, 1);
       console.log(randomRotation(0, 1));
     });
 
