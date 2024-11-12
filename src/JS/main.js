@@ -47,6 +47,11 @@ class Doritos {
   constructor() {
     this.reset();
   }
+  // setFill(value) {
+  //   this.fill = Math.min(value, 80); // Nilai maksimal fill adalah 80
+  // }
+
+
 
   reset() {
     this.x = Math.random() * canvas.width * 0.9;
@@ -58,14 +63,25 @@ class Doritos {
     this.spin = randomRotation(0, 2);
     this.friction = 0.99;
     this.rotation = 0;
-    this.fill = 0;
-    this.width = 80;
-    this.height = 80;
+    this.fill = 0
+    this.updateWidth();
+    this.height = this.width;
     this.isOnGround = false;
     this.isDragging = false;
     this.spawn = false;
+    this.full = this.fill === 80;
     this.offsetX = 0;
     this.offsetY = 0;
+  }
+
+  updateWidth() {
+    this.width = (this.fill % 20 === 0) ? this.fill + 80 : 80;
+  }
+
+  update() {
+    this.fill += 1;
+
+    this.updateWidth();
   }
 }
 
@@ -211,6 +227,10 @@ Promise.all([
       drawText(text, 115, 18);
       drawText(counterAhoge, 50, 50);
 
+      let counterDoritos = `Doritos : ${doritos.fill}`;
+      drawText(text, 115, 18);
+      drawText(counterDoritos, 50, 80);
+
       // gambar nijika di kordinat pojok kiri bawah
       const nijikaAnimation = nijikaImage[+nijikaCondition];
       drawImage(
@@ -310,7 +330,7 @@ Promise.all([
           ); // gunakan euclidean distance untuk menghitung jarak
           if (distance < doritos.width / 2) {
             ahoge.splice(index, 1); // Hapus ahoge
-            doritos.fill += 1; // Tambahkan nilai doritos
+            doritos.update() // Tambahkan nilai doritos
           }
         }
 
@@ -340,8 +360,9 @@ Promise.all([
         ctx.drawImage(ahogeImage, -15, -15, ahogeWidth, ahogeHeight); // Gambar ahoge
         ctx.restore(); // Kembalikan keadaan kanvas
       });
+
       // Gambar doritos di kanvas
-      if (ahoge.length > 10 || doritos.spawn) {
+      if (ahoge.length > 10 || doritos) {
         // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
 
         ctx.save(); // Simpan keadaan kanvas
