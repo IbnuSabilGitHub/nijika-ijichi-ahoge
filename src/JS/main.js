@@ -51,7 +51,13 @@ class Doritos {
   //   this.fill = Math.min(value, 80); // Nilai maksimal fill adalah 80
   // }
 
+  get fill() {
+    return this._fill;
+  }
 
+  set fill(value) {
+    this._fill = Math.min(value, 80); // Nilai maksimal fill adalah 80
+  }
 
   reset() {
     this.x = Math.random() * canvas.width * 0.9;
@@ -63,24 +69,29 @@ class Doritos {
     this.spin = randomRotation(0, 2);
     this.friction = 0.99;
     this.rotation = 0;
-    this.fill = 0
-    this.updateWidth();
-    this.height = this.width;
+    this.fill = this.fill || 0;
+    this.width = 80;
+    this.height = 80;
     this.isOnGround = false;
     this.isDragging = false;
     this.spawn = false;
-    this.full = this.fill === 80;
+    this.full = this.fill >= 80;
     this.offsetX = 0;
     this.offsetY = 0;
   }
 
   updateWidth() {
-    this.width = (this.fill % 20 === 0) ? this.fill + 80 : 80;
+    // Perbesar ukuran doritos setiap 10 poin saat kelipatan 10 dari fill
+    if (this.fill % 10 == 0 && !this.full) {
+      this.width += 10; 
+      this.height += 10; 
+    }
+
   }
 
   update() {
     this.fill += 1;
-
+    this.full = this.fill >= 80;
     this.updateWidth();
   }
 }
@@ -324,7 +335,7 @@ Promise.all([
           }
         }
 
-        if (doritos.isDragging) {
+        if (doritos.isDragging && !doritos.full) {
           let distance = Math.sqrt(
             (doritos.x - p.x) ** 2 + (doritos.y - p.y) ** 2
           ); // gunakan euclidean distance untuk menghitung jarak
@@ -336,6 +347,7 @@ Promise.all([
             );
             soundDoritos.play();
             doritos.update() // Tambahkan nilai doritos
+            console.log(doritos.full)
           }
         }
 
