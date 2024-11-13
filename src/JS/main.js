@@ -330,6 +330,11 @@ Promise.all([
           ); // gunakan euclidean distance untuk menghitung jarak
           if (distance < doritos.width / 2) {
             ahoge.splice(index, 1); // Hapus ahoge
+            // Play sound
+            const soundDoritos = new Audio(
+              "/public/assets/sound/plastic-crunch-83779.mp3"
+            );
+            soundDoritos.play();
             doritos.update() // Tambahkan nilai doritos
           }
         }
