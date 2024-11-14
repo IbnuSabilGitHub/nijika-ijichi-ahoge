@@ -57,7 +57,7 @@ class Doritos {
   }
 
   set fill(value) {
-    this._fill = Math.min(value, 80); // Nilai maksimal fill adalah 80
+    this._fill = Math.min(value, 40); // Nilai maksimal fill adalah 80
   }
 
   reset() {
@@ -76,7 +76,7 @@ class Doritos {
     this.isOnGround = false;
     this.isDragging = false;
     this.spawn = false;
-    this.full = this.fill >= 80;
+    this.full = this.fill >= 40;
     this.offsetX = 0;
     this.offsetY = 0;
   }
@@ -91,7 +91,7 @@ class Doritos {
 
   update() {
     this.fill += 1;
-    this.full = this.fill >= 80;
+    this.full = this.fill >= 40;
     this.updateWidth();
   }
 }
@@ -290,8 +290,9 @@ Promise.all([
         if (isOn && ahoge.length > 10 && ahogeToRemove.length > 0) {
           // Cek apakah sudah melewati interval penghapusan
           if (timestamp - lastRemovalTime >= removalInterval) {
-            const index = ahogeToRemove.shift(); // Pilih index acak
+            const index = ahogeToRemove.shift(); // pilih index pertma
             // Hapus satu item dari array
+            ahoge.splice(index, 1); // Hapus ahoge
 
             eating.play();
             lastRemovalTime = timestamp; // Perbarui waktu penghapusan terakhir
