@@ -16,6 +16,7 @@ const ahogeCount = 0; // untuk meyimkan jumlah ahoge
 const baseForce = 40; // Mengatur Gaya tarik magnet
 const damping = 0.98; // mengatur peredaman saat mendekati mangnet
 const maxDistance = 400; // Jarak maksimum untuk gaya tarik
+
 let rotationSpeedRange = { min: 0, max: 5 }; // Kecepatan rotasi acak
 let ahogeToRemove = []; // Array untuk menyimpan ahoge yang akan dihapus
 let magnet = { x: null, y: null, statusMaget: false }; // Magnet untuk menarik ahoge
@@ -83,10 +84,9 @@ class Doritos {
   updateWidth() {
     // Perbesar ukuran doritos setiap 10 poin saat kelipatan 10 dari fill
     if (this.fill % 10 == 0 && !this.full) {
-      this.width += 10; 
-      this.height += 10; 
+      this.width += 10;
+      this.height += 10;
     }
-
   }
 
   update() {
@@ -99,6 +99,9 @@ class Doritos {
 // Membuat objek doritos
 let doritos = new Doritos();
 
+// Mengatur ukuran ahoge berdasarkan layar
+const ahogeWidth = window.innerWidth < 420 ? 20 : 40;
+const ahogeHeight = window.innerWidth < 420 ? 20 : 40;
 // Fungsi untuk membuat ahoge baru
 function createAhoge(x, y) {
   // Inisialisasi data ahoge
@@ -112,6 +115,7 @@ function createAhoge(x, y) {
 
     // Ukuran ahoge secara acak
     size: Math.random() * 5 + 2,
+    // Ukuran ahoge berdasarkan layar
 
     angle: 0,
     angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
@@ -346,8 +350,8 @@ Promise.all([
               "/public/assets/sound/plastic-crunch-83779.mp3"
             );
             soundDoritos.play();
-            doritos.update() // Tambahkan nilai doritos
-            console.log(doritos.full)
+            doritos.update(); // Tambahkan nilai doritos
+            console.log(doritos.full);
           }
         }
 
@@ -364,16 +368,18 @@ Promise.all([
         p.rotationSpeed *= 1 - p.rotationSlowdown;
 
         // Batasi partikel di dalam layar
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        if (p.x < 0 || p.x + ahogeWidth > canvas.width) {
+          p.vx *= -1;
+        }
+        if (p.y < 0 || p.y + ahogeHeight > canvas.height) {
+          p.vy *= -1;
+        }
 
         // Gambar elemen ahoge dengan posisi dan rotasi yang diperbarui
         ctx.save(); // Simpan keadaan kanvas
         ctx.translate(p.x, p.y); // Pindahkan titik tengah ke posisi ahoge
         ctx.rotate((p.rotation * Math.PI) / 180); // Rotasi dalam radian
-        // Ukuran ahoge berdasarkan layar
-        const ahogeWidth = window.innerWidth < 420 ? 20 : 40;
-        const ahogeHeight = window.innerWidth < 420 ? 20 : 40;
+
         ctx.drawImage(ahogeImage, -15, -15, ahogeWidth, ahogeHeight); // Gambar ahoge
         ctx.restore(); // Kembalikan keadaan kanvas
       });
@@ -482,6 +488,7 @@ Promise.all([
       }
     });
 
+    // Event listener untuk drag and drop doritos
     canvas.addEventListener("mousedown", (e) => {
       const rect = canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
