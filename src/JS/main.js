@@ -184,6 +184,10 @@ function loadImage(src) {
   });
 }
 
+
+
+let statusRyoChibi = false;
+
 // Deklarasi URL gambar
 const ahogeImageSrc = "/public/assets/image/ahoge.webp";
 const nijikaImageSrcs = [
@@ -193,6 +197,10 @@ const nijikaImageSrcs = [
 const logoImageSrc = "/public/assets/image/Kessoku_Band_Logo.svg";
 const magnetImageSrc = "/public/assets/image/eww_people.png";
 const doritosImageSrc = "/public/assets/image/doritos.webp";
+const ryoChibiSrc = [
+  "/public/assets/image/ryo_chibi.png",
+  "/public/assets/image/ryo_chibi_dragging.png",
+];
 
 // Muat semua gambar sekaligus
 Promise.all([
@@ -202,11 +210,21 @@ Promise.all([
   loadImage(nijikaImageSrcs[1]),
   loadImage(logoImageSrc),
   loadImage(magnetImageSrc),
+  loadImage(ryoChibiSrc[0]),
+  loadImage(ryoChibiSrc[1]),
 ])
   .then((images) => {
     // Setelah semua gambar dimuat, akses masing-masing gambar dari array `images`
-    const [doritosImage, ahogeImage, nijika0, nijika1, logo, magnetImage] =
-      images;
+    const [
+      doritosImage,
+      ahogeImage,
+      nijika0,
+      nijika1,
+      logo,
+      magnetImage,
+      ryoChibi,
+      ryoChibiDragging,
+    ] = images;
 
     // Gunakan gambar yang sudah dimuat, misalnya simpan dalam variabel
     let nijikaCondition = false;
@@ -444,6 +462,19 @@ Promise.all([
             if (doritos.rotation <= 0) doritos.rotation = 0;
           }
         }
+      }
+
+      if (ahoge.length > 10) {
+        // Gambar ryo chibi di kanvas
+        drawImage(
+          ctx,
+          ryoChibi,
+          canvas.width - 200,
+          canvas.height - 95,
+          1,
+          100,
+          100
+        );
       }
 
       requestAnimationFrame(animateAhoge); // Ulangi animasi
