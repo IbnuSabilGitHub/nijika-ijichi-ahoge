@@ -122,10 +122,10 @@ function createAhoge(x, y) {
     rotation: 0, // Rotasi ahoge
     rotationSpeed: randomRotation(0, 5), // Kecepatan rotasi yang lebih lambat
     radius: Math.random() * 50 + 50, // Jarak untuk rotasi
-    rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
+    rotatin: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
   });
 }
-// function untuk menangani tabrakan
+// functioonSlowdown untuk menangani tabrakan
 function handleCollisions() {
   for (let i = 0; i < ahoge.length; i++) {
     for (let j = i + 1; j < ahoge.length; j++) {
@@ -184,9 +184,14 @@ function loadImage(src) {
   });
 }
 
-
-
-let statusRyoChibi = false;
+const ryo = {
+  x: canvas.width + 10,
+  y: canvas.height - 95,
+  animationStatus: false,
+  animationX(amount) {
+    this.x = Math.min(this.x + amount, 200); // Batasi langsung di dalam objek
+  },
+};
 
 // Deklarasi URL gambar
 const ahogeImageSrc = "/public/assets/image/ahoge.webp";
@@ -463,19 +468,24 @@ Promise.all([
           }
         }
       }
+      
+      // if (ahoge.length > 10) {
+      //   ryo.animationStatus = true;
+      // }
 
-      if (ahoge.length > 10) {
-        // Gambar ryo chibi di kanvas
-        drawImage(
-          ctx,
-          ryoChibi,
-          canvas.width - 200,
-          canvas.height - 95,
-          1,
-          100,
-          100
-        );
-      }
+      // if (ryo.animationStatus) ryo ; // Gerakan ryo chibi ke kiri
+
+      // // Gambar ryo chibi di kanvas
+      // drawImage(
+      //   ctx,
+      //   ryoChibi,
+      //   canvas.width - 200,
+      //   canvas.height - 95,
+      //   1,
+      //   100,
+      //   100
+      // );
+
 
       requestAnimationFrame(animateAhoge); // Ulangi animasi
     }
