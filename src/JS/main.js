@@ -184,14 +184,7 @@ function loadImage(src) {
   });
 }
 
-let nijikaImage = {
-  src: ["/public/assets/image/nijika-1.png", "/public/assets/image/nijika-0.png"],
-  imageFlag: false,
-  targetX : 185, // Posisi x ahoge dalam gambar asli
-  targetY : 115, // Posisi y ahoge dalam gambar asli
-  targetWidth : 30, // Lebar area ahoge
-  targetHeight : 40, // Tinggi area ahoge
-}
+
 
 
 
