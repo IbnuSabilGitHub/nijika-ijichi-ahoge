@@ -185,11 +185,24 @@ function loadImage(src) {
 }
 
 const ryo = {
-  x: canvas.width + 10,
+  x: canvas.width,
   y: canvas.height - 95,
   animationStatus: false,
   animationX(amount) {
-    this.x = Math.min(this.x + amount, 200); // Batasi langsung di dalam objek
+    const maxLimit = canvas.width; // Batas atas
+    const minLimit = canvas.width - 200; // Batas bawah
+
+    if (this.animationStatus) {
+      // Jika status animasi true, kurangi x hingga mencapai minLimit
+      this.x = Math.max(this.x - amount, minLimit);
+    } else {
+      // Jika status animasi false, tambahkan x hingga mencapai maxLimit
+      this.x = Math.min(this.x + amount, maxLimit);
+    }
+  },
+  updateCanvasBounds() {
+    this.x = Math.min(this.x, canvas.width); // Pastikan x tidak lebih dari canvas.width
+    this.y = canvas.height - 95; // Sesuaikan ulang posisi y
   },
 };
 
@@ -375,7 +388,6 @@ Promise.all([
             );
             soundDoritos.play();
             doritos.update(); // Tambahkan nilai doritos
-            console.log(doritos.full);
           }
         }
 
@@ -468,24 +480,17 @@ Promise.all([
           }
         }
       }
-      
-      // if (ahoge.length > 10) {
-      //   ryo.animationStatus = true;
-      // }
 
-      // if (ryo.animationStatus) ryo ; // Gerakan ryo chibi ke kiri
+      ryo.animationStatus = ahoge.length > 10;
+      ryo.animationX(1);
+      // ryo.animationStatus
+      //   ? console.log(`${canvas.width - 200}: ${ryo.x}`)
+      //   : console.log(`${canvas.width}: ${ryo.x}`);
+      console.log
 
-      // // Gambar ryo chibi di kanvas
-      // drawImage(
-      //   ctx,
-      //   ryoChibi,
-      //   canvas.width - 200,
-      //   canvas.height - 95,
-      //   1,
-      //   100,
-      //   100
-      // );
 
+      // Gambar ryo chibi di kanvas
+      drawImage(ctx, ryoChibi, ryo.x, canvas.height - 95, 1, 100, 100);
 
       requestAnimationFrame(animateAhoge); // Ulangi animasi
     }
