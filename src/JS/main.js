@@ -2,6 +2,8 @@
 
 import { drawImage } from "./function.js";
 import { textConfig } from "./function.js";
+import { isInside } from "./function.js";
+import { getMousePos } from "./function.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -188,6 +190,8 @@ const ryo = {
   x: canvas.width,
   y: canvas.height - 95,
   animationStatus: false,
+  width: 100,
+  height: 100,
   animationX(amount) {
     const maxLimit = canvas.width; // Batas atas
     const minLimit = canvas.width - 200; // Batas bawah
@@ -486,11 +490,10 @@ Promise.all([
       // ryo.animationStatus
       //   ? console.log(`${canvas.width - 200}: ${ryo.x}`)
       //   : console.log(`${canvas.width}: ${ryo.x}`);
-      console.log
 
 
       // Gambar ryo chibi di kanvas
-      drawImage(ctx, ryoChibi, ryo.x, canvas.height - 95, 1, 100, 100);
+      drawImage(ctx, ryoChibi, ryo.x, canvas.height - 95, 1, ryo.width, ryo.height);
 
       requestAnimationFrame(animateAhoge); // Ulangi animasi
     }
@@ -551,7 +554,10 @@ Promise.all([
         doritos.offsetX = mouseX - doritos.x;
         doritos.offsetY = mouseY - doritos.y;
       }
+
+
     });
+    
     canvas.addEventListener("mousemove", (e) => {
       if (doritos.isDragging) {
         const rect = canvas.getBoundingClientRect();
@@ -578,6 +584,15 @@ Promise.all([
       doritos.isDragging = false;
       doritos.spin = randomRotation(0, 1);
     });
+
+
+    canvas.addEventListener('click', function(evt) {
+      var mousePos = getMousePos(canvas, evt);
+    
+      if (isInside(mousePos, ryo)) {
+        console.log('clicked inside the rect');
+      }
+    }, false);
 
     animateAhoge(); // Mulai animasi
   })
