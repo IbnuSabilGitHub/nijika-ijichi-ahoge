@@ -37,14 +37,7 @@ eating.addEventListener("canplaythrough", () => {
   removalInterval = eating.duration * 1000; // Konversi ke milidetik
 });
 
-function randomRotation(min, max) {
-  // Pilih arah rotasi -180 atau 180 derajat
-  const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
-  // Tentukan kecepatan rotasi berdasarkan rentang (rotasi lambat)
-  const randomRotationSpeed =
-    randomRotationDirection * (Math.random() * (min - max) + max);
-  return randomRotationSpeed;
-}
+
 
 class Doritos {
   constructor() {
@@ -124,7 +117,7 @@ function createAhoge(x, y) {
     rotation: 0, // Rotasi ahoge
     rotationSpeed: randomRotation(0, 5), // Kecepatan rotasi yang lebih lambat
     radius: Math.random() * 50 + 50, // Jarak untuk rotasi
-    rotatin: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
+    rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
   });
 }
 // functioonSlowdown untuk menangani tabrakan
@@ -187,6 +180,7 @@ function loadImage(src) {
 }
 
 const ryo = {
+  src: ["/public/assets/image/ryo_chibi.png","/public/assets/image/ryo_chibi_dragging.png"],
   x: canvas.width,
   y: canvas.height - 95,
   animationStatus: false,
@@ -219,10 +213,7 @@ const nijikaImageSrcs = [
 const logoImageSrc = "/public/assets/image/Kessoku_Band_Logo.svg";
 const magnetImageSrc = "/public/assets/image/eww_people.png";
 const doritosImageSrc = "/public/assets/image/doritos.webp";
-const ryoChibiSrc = [
-  "/public/assets/image/ryo_chibi.png",
-  "/public/assets/image/ryo_chibi_dragging.png",
-];
+
 
 // Muat semua gambar sekaligus
 Promise.all([
@@ -232,8 +223,8 @@ Promise.all([
   loadImage(nijikaImageSrcs[1]),
   loadImage(logoImageSrc),
   loadImage(magnetImageSrc),
-  loadImage(ryoChibiSrc[0]),
-  loadImage(ryoChibiSrc[1]),
+  loadImage(ryo.src[0]),
+  loadImage(ryo.src[1]),
 ])
   .then((images) => {
     // Setelah semua gambar dimuat, akses masing-masing gambar dari array `images`
