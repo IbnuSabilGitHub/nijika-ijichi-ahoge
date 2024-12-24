@@ -5,7 +5,7 @@ export function drawImage(
   y,
   transparaency = 1,
   width = image.width,
-  height = image.height,
+  height = image.height
 ) {
   ctx.save(); // Simpan keadaan kanvas
   // ctx.translate(xPos, yPos); // Pindahkan titik tengah ke posisi gambar
@@ -15,18 +15,38 @@ export function drawImage(
   ctx.restore(); // Kembalikan keadaan kanvas
 }
 
-
 export const textConfig = {
   font: '400 1rem "Segoe UI"',
-  fillStyle: 'white',
-  textAlign: 'center',
-  textBaseline: 'middle'
+  fillStyle: "white",
+  textAlign: "center",
+  textBaseline: "middle",
 };
 
-export function isInside(pos, rect) {
-  return pos.x > rect.x && pos.x < rect.x + rect.width && pos.y < rect.y + rect.height && pos.y > rect.y
+export function drawText(ctx, text, x, y) {
+  ctx.font = textConfig.font;
+  ctx.fillStyle = textConfig.fillStyle;
+  ctx.textAlign = textConfig.textAlign;
+  ctx.textBaseline = textConfig.textBaseline;
+  ctx.fillText(text, x, y);
 }
 
+export function isInside(pos, rect) {
+  return (
+    pos.x > rect.x &&
+    pos.x < rect.x + rect.width &&
+    pos.y < rect.y + rect.height &&
+    pos.y > rect.y
+  );
+}
+
+function randomRotation(min, max) {
+  const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
+  const randomRotationSpeed =
+    randomRotationDirection * (Math.random() * (max - min) + min);
+  return randomRotationSpeed;
+}
+
+// Fungsi untuk mendapatkan posisi klik relatif terhadap canvas
 export function getMousePos(canvas, event) {
   var rect = canvas.getBoundingClientRect();
   return {
@@ -35,69 +55,109 @@ export function getMousePos(canvas, event) {
   };
 }
 
-
-class Image {
-  constructor(src) {
+// CLASS IMAGE -------------------------------------
+export class Images {
+  constructor(src, canvasId = "canvas") {
     this.src = src;
     this.imageElement = null;
-    this.ctx = document.createElement('canvas').getContext('2d');
-    this.properties();
+    this.drawn = false;
+    this.canvas = document.getElementById(canvasId);
+    this.ctx = this.canvas?.getContext("2d");
+    this.x = 0;
+    this.y = 0;
+    this.width = 0;
+    this.height = 0;
   }
 
+  // Memuat gambar secara asinkron
   loadImage() {
     return new Promise((resolve, reject) => {
-      const img = document.createElement('img'); // Elemen gambar HTML
+      const img = new Image();
       img.src = this.src;
       img.onload = () => {
-        this.imageElement = img; // Simpan elemen gambar
-        this.canvas.width = img.width; // Atur ukuran kanvas
-        this.canvas.height = img.height;
-        resolve(img);
+        this.imageElement = img;
+        this.width = img.width; // Menyimpan lebar gambar
+        this.height = img.height; // Menyimpan tinggi gambar
+        resolve(this); // Resolve dengan instance objek ini
       };
-      img.onerror = reject;
+      img.onerror = (err) => reject(new Error(`Gagal memuat gambar: ${err}`));
     });
   }
 
-  static randomRotation(min, max) {
-    // Pilih arah rotasi -180 atau 180 derajat
-    const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
-    // Tentukan kecepatan rotasi berdasarkan rentang (rotasi lambat)
-    const randomRotationSpeed =
-      randomRotationDirection * (Math.random() * (min - max) + max);
-    return randomRotationSpeed;
+  clicked(pos) {
+    return (
+      pos.x > this.x &&
+      pos.x < this.x + this.width &&
+      pos.y < this.y + this.height &&
+      pos.y > this.y
+    );
   }
-  
 
-  drawImage(x, y, width = 100, height = 100, transparency = 1) {
-    if (!this.imageElement) {
-      console.error("Gambar belum dimuat. Panggil loadImage() terlebih dahulu.");
+  // Fungsi statis untuk rotasi acak
+
+  // gambar image di canvas
+  draw(
+    x = this.x,
+    y = this.y,
+    width = this.width,
+    height = this.height,
+    transparency = 1
+  ) {
+    if (!this.ctx) {
+      console.error("Konteks kanvas tidak ditemukan. Periksa ID kanvas.");
       return;
     }
+
+    if (!this.imageElement) {
+      console.error(
+        "Gambar belum dimuat. Panggil loadImage() terlebih dahulu."
+      );
+      return;
+    }
+
     this.ctx.save();
     this.ctx.globalAlpha = transparency;
     this.ctx.drawImage(this.imageElement, x, y, width, height);
     this.ctx.restore();
-  }
-  
-
-  properties() {
-    if (!this.imageElement) {
-      return { error: "Gambar belum dimuat." };
-    }
-    return {
-      x: 0,
-      y: 0,
-      width: this.imageElement.width,
-      height: this.imageElement.height,
-      transparency: 1,
-    };
+    this.drawn = true;
   }
 }
 
+export class Nijika extends Images {
+  constructor(src) {
+    super(src);
+    // Setting untuk Target click untuk mentirggerd ahoge
+    this.targetX = 185; // Posisi x ahoge dalam gambar asli
+    this.targetY = 115; // Posisi y ahoge dalam gambar asli
+    this.targetWidth = 30; // Lebar area ahoge
+    this.targetHeight = 40; // Tinggi area ahoge
+  }
 
-class Doritos extends Image{
+  clicked(pos) {
+
+   
+    if (!this.drawn) {return false;}// Jika gambar belum digambar, keluar
+    const imgX = 0;
+    const imgY = this.canvas.height - this.height;
+    const targetCanvasX = imgX + (this.targetX / this.width) * this.width;
+    const targetCanvasY = imgY + (this.targetY / this.height) * this.height;
+    const targetCanvasWidth = (this.targetWidth / this.width) * this.width;
+    const targetCanvasHeight = (this.targetHeight / this.height) * this.height;
+    if (
+      pos.x > targetCanvasX &&
+      pos.x < targetCanvasX + targetCanvasWidth &&
+      pos.y > targetCanvasY &&
+      pos.y < targetCanvasY + targetCanvasHeight
+    )
+      return true;
+    return false;
+
+  }
+}
+
+export class Doritos extends Images {
   constructor() {
-    super('assets/doritos.png'); // Panggil konstruktor kelas induk
+    super("assets/doritos.png"); // Panggil konstruktor kelas induk
     this._fill = 0; // Inisialisasi nilai awal fill
     this.properties(); // Panggil metode untuk mengatur properti awal
   }

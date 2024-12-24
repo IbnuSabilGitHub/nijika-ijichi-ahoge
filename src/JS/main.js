@@ -157,17 +157,9 @@ function handleCollisions() {
   }
 }
 // Function untuk mengatur teks
-function setupText() {
-  ctx.font = textConfig.font;
-  ctx.fillStyle = textConfig.fillStyle;
-  ctx.textAlign = textConfig.textAlign;
-  ctx.textBaseline = textConfig.textBaseline;
-}
+
 // Fungsi untuk menggambar teks di kanvas
-function drawText(text, x, y) {
-  setupText();
-  ctx.fillText(text, x, y);
-}
+
 
 // Fungsi untuk memuat gambar yang mengembalikan Promise
 function loadImage(src) {
