@@ -13,7 +13,6 @@ canvas.height = window.innerHeight; // leabr kanvas mengikuti tinggi layar
 const eating = new Audio("/public/assets/sound/eating-effect-254996.mp3");
 eating.load();
 // Setting untuk Ahoge flying
-const ahoge = []; // Array untuk menyimpan semua ahoge
 const ahogeCount = 0; // untuk meyimkan jumlah ahoge
 const baseForce = 40; // Mengatur Gaya tarik magnet
 const damping = 0.98; // mengatur peredaman saat mendekati mangnet
@@ -36,7 +35,6 @@ let lastRemovalTime = 0; // Waktu penghapusan terakhir
 eating.addEventListener("canplaythrough", () => {
   removalInterval = eating.duration * 1000; // Konversi ke milidetik
 });
-
 
 
 class Doritos {

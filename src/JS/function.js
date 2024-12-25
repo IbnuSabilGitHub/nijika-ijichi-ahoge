@@ -134,9 +134,9 @@ export class Nijika extends Images {
   }
 
   clicked(pos) {
-
-   
-    if (!this.drawn) {return false;}// Jika gambar belum digambar, keluar
+    if (!this.drawn) {
+      return false;
+    } // Jika gambar belum digambar, keluar
     const imgX = 0;
     const imgY = this.canvas.height - this.height;
     const targetCanvasX = imgX + (this.targetX / this.width) * this.width;
@@ -151,7 +151,140 @@ export class Nijika extends Images {
     )
       return true;
     return false;
+  }
+}
 
+export class Ahoge extends Images {
+  constructor(src) {
+    super(src); // Panggil konstruktor kelas induk
+    this.item = []; // Array untuk menyimpan semua ahoge
+    this.baseForce = 40; // Mengatur Gaya tarik magnet
+    this.damping = 0.98; // mengatur peredaman saat mendekati mangnet
+    this.maxDistance = 400; // Jarak maksimum untuk gaya tarik
+    this.ahogeToRemove = []; // Array untuk menyimpan ahoge yang akan dihapus
+  }
+
+  draw(
+    x,
+    y,
+    rotation,
+    width = this.width,
+    height = this.height,
+    transparency = 1
+  ) {
+    if (!this.ctx) {
+      console.error("Konteks kanvas tidak ditemukan. Periksa ID kanvas.");
+      return;
+    }
+
+    if (!this.imageElement) {
+      console.error(
+        "Gambar belum dimuat. Panggil loadImage() terlebih dahulu."
+      );
+      return;
+    }
+
+    this.ctx.save(); // Simpan keadaan kanvas
+    this.ctx.translate(x, y); // Pindahkan titik tengah ke posisi ahoge
+    this.ctx.rotate((rotation * Math.PI) / 180); // Rotasi dalam radian
+    this.ctx.drawImage(this.imageElement, -15, -15, this.width, this.height); // Gambar ahoge
+    this.ctx.restore(); // Kembalikan keadaan kanvas
+  }
+
+  build(pos) {
+    this.ahogeItem.push({
+      x: pos.x,
+      y: pos.y,
+
+      // Kecepatan ahoge secara acak
+      vx: (Math.random() - 0.5) * 4,
+      vy: (Math.random() - 0.5) * 4,
+
+      // Ukuran ahoge secara acak
+      size: Math.random() * 5 + 2,
+      // Ukuran ahoge berdasarkan layar
+
+      angle: 0,
+      angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
+      rotation: 0, // Rotasi ahoge
+      rotationSpeed: randomRotation(0, 5), // Kecepatan rotasi yang lebih lambat
+      radius: Math.random() * 50 + 50, // Jarak untuk rotasi
+      rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
+    });
+  }
+
+  handleCollisions() {
+    for (let i = 0; i < this.ahogeItem.length; i++) {
+      for (let j = i + 1; j < this.ahogeItem.length; j++) {
+        const p1 = this.ahogeItem[i];
+        const p2 = this.ahogeItem[j];
+
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Jika ahoge bertabrakan
+        if (distance < p1.size + p2.size) {
+          // Pantulkan ahoge
+          const angle = Math.atan2(dy, dx);
+          const sin = Math.sin(angle);
+          const cos = Math.cos(angle);
+
+          // Pisahkan ahoge sedikit
+          const overlap = (p1.size + p2.size - distance) / 2;
+          p1.x -= overlap * cos;
+          p1.y -= overlap * sin;
+          p2.x += overlap * cos;
+          p2.y += overlap * sin;
+
+          // Tukar kecepatan
+          const tempVx = p1.vx;
+          const tempVy = p1.vy;
+          p1.vx = p2.vx * damping;
+          p1.vy = p2.vy * damping;
+          p2.vx = tempVx * damping;
+          p2.vy = tempVy * damping;
+        }
+      }
+    }
+  }
+}
+
+export class Magnet extends Images {
+  constructor(src) {
+    super(src);
+    this.x = null;
+    this.y = null;
+    this.status = false;
+  }
+  draw(
+    x = this.x,
+    y = this.y,
+    width = this.width,
+    height = this.height,
+    transparency = 1
+  ) {
+    if (!this.ctx) {
+      console.error("Konteks kanvas tidak ditemukan. Periksa ID kanvas.");
+      return;
+    }
+
+    if (!this.imageElement) {
+      console.error(
+        "Gambar belum dimuat. Panggil loadImage() terlebih dahulu."
+      );
+      return;
+    }
+
+    const centerX = x - width / 2; // Pusat gambar di x
+    const centerY = y - height / 2; // Pusat gambar di y
+
+
+    this.ctx.save();
+    this.ctx.globalAlpha = transparency;
+    this.ctx.drawImage(this.imageElement, centerX, centerY, width, height);
+    this.ctx.restore();
+    this.drawn = true;
   }
 }
 
