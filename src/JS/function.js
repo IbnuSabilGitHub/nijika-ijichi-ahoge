@@ -65,8 +65,8 @@ export class Images {
     this.ctx = this.canvas?.getContext("2d");
     this.x = 0;
     this.y = 0;
-    this.width = 0;
-    this.height = 0;
+    this.width = this.imageElement?.width || 0;
+    this.height = this.imageElement?.height || 0;
   }
 
   // Memuat gambar secara asinkron
@@ -161,12 +161,12 @@ export class Ahoge extends Images {
     this.baseForce = 40; // Mengatur Gaya tarik magnet
     this.damping = 0.98; // mengatur peredaman saat mendekati mangnet
     this.maxDistance = 400; // Jarak maksimum untuk gaya tarik
-    this.ahogeToRemove = []; // Array untuk menyimpan ahoge yang akan dihapus
+    this.toRemove = []; // Array untuk menyimpan ahoge yang akan dihapus
   }
 
   draw(
     x,
-    y,
+    y ,
     rotation,
     width = this.width,
     height = this.height,
@@ -187,63 +187,68 @@ export class Ahoge extends Images {
     this.ctx.save(); // Simpan keadaan kanvas
     this.ctx.translate(x, y); // Pindahkan titik tengah ke posisi ahoge
     this.ctx.rotate((rotation * Math.PI) / 180); // Rotasi dalam radian
-    this.ctx.drawImage(this.imageElement, -15, -15, this.width, this.height); // Gambar ahoge
+    this.ctx.drawImage(this.imageElement, -15, -15, width, height); // Gambar ahoge
     this.ctx.restore(); // Kembalikan keadaan kanvas
   }
 
   build(pos) {
-    this.ahogeItem.push({
+    this.item.push({
       x: pos.x,
       y: pos.y,
-
+  
       // Kecepatan ahoge secara acak
       vx: (Math.random() - 0.5) * 4,
       vy: (Math.random() - 0.5) * 4,
-
+  
       // Ukuran ahoge secara acak
-      size: Math.random() * 5 + 2,
-      // Ukuran ahoge berdasarkan layar
-
+      imgSize: Math.floor(Math.random() * (80 - 40) + 40), // Lebar acak antara 40 dan 80
+      size: null, // Placeholder, akan dihitung di langkah berikutnya
+  
       angle: 0,
       angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
       rotation: 0, // Rotasi ahoge
       rotationSpeed: randomRotation(0, 5), // Kecepatan rotasi yang lebih lambat
       radius: Math.random() * 50 + 50, // Jarak untuk rotasi
-      rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
+      rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlambatan rotasi
     });
+  
+    // Ambil item terbaru dan hitung size berdasarkan width
+    const lastItem = this.item[this.item.length - 1];
+    lastItem.size = lastItem.imgSize / 4; // Contoh: Size adalah setengah dari width
   }
+  
 
   handleCollisions() {
-    for (let i = 0; i < this.ahogeItem.length; i++) {
-      for (let j = i + 1; j < this.ahogeItem.length; j++) {
-        const p1 = this.ahogeItem[i];
-        const p2 = this.ahogeItem[j];
+    for (let i = 0; i < this.item.length; i++) {
+      for (let j = i + 1; j < this.item.length; j++) {
+        const item1 = this.item[i];
+        const item2 = this.item[j];
 
-        const dx = p2.x - p1.x;
-        const dy = p2.y - p1.y;
+        const dx = item2.x - item1.x;
+        const dy = item2.y - item1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Jika ahoge bertabrakan
-        if (distance < p1.size + p2.size) {
-          // Pantulkan ahoge
+        // Jika item bertabrakan
+        if (distance < item1.size + item2.size) {
+          // Pantulkan item
           const angle = Math.atan2(dy, dx);
           const sin = Math.sin(angle);
           const cos = Math.cos(angle);
 
-          // Pisahkan ahoge sedikit
-          const overlap = (p1.size + p2.size - distance) / 2;
-          p1.x -= overlap * cos;
-          p1.y -= overlap * sin;
-          p2.x += overlap * cos;
-          p2.y += overlap * sin;
+          // Pisahkan item sedikit
+          const overlap = (item1.size + item2.size - distance) / 2;
+          item1.x -= overlap * cos;
+          item1.y -= overlap * sin;
+          item2.x += overlap * cos;
+          item2.y += overlap * sin;
 
           // Tukar kecepatan
-          const tempVx = p1.vx;
-          const tempVy = p1.vy;
-          p1.vx = p2.vx * damping;
-          p1.vy = p2.vy * damping;
-          p2.vx = tempVx * damping;
-          p2.vy = tempVy * damping;
+          const tempVx = item1.vx;
+          const tempVy = item1.vy;
+          item1.vx = item2.vx * this.damping;
+          item1.vy = item2.vy * this.damping;
+          item2.vx = tempVx * this.damping;
+          item2.vy = tempVy * this.damping;
         }
       }
     }
