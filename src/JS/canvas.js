@@ -31,19 +31,26 @@ Promise.all([
 ])
   .then(() => {
     let currentNijika = nijikaImage1;
-    console.log(ahoge.item.le);
     function frameCanvas(timestamp) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawText(ctx, "Developed by IBNU with ❤️", 115, 18);
-      // drawText(`Ahoge : ${ahoge.length}`,115, 18);
+      drawText(ctx, `Ahoge : ${ahoge.item.length}`, 50, 50);
       // drawText( `Doritos : ${doritos.fill}`, 50, 80);
       // Gambar nijika
       currentNijika.draw(0, canvas.height - currentNijika.height);
 
-      magnet.status && magnet.draw();
+      // Mulai interval magnet jika ada 10 ahoge
+      if (ahoge.item.length >= 10) {
+        startMagnetInterval();
+      } else {
+        stopMagnetInterval();
+      }
+      if (magnet.status) {
+        magnet.draw(magnet.x, magnet.y, 150, 150);
+      }
+
       // hanya saat ada ahoge, tangani tabrakan(menggunakan Optinoal Chaining)
-      // ahoge.item?.length && ahoge.handleCollisions();
-      ahoge.handleCollisions()
+      ahoge.item?.length && ahoge.handleCollisions();
 
       ahoge.item.forEach((item, i) => {
         if (magnet.status) {
@@ -52,7 +59,7 @@ Promise.all([
           let dx = magnet.x - item.x;
           let dy = magnet.y - item.y;
           // Gunakan rumus euclidean distance untuk menghitung jarak antara magnet dan ahoge
-          let distance = Math.sqrt(50, Math.sqrt(dx * dx + dy * dy));
+          let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy));
           let force = Math.min(ahoge.baseForce / distance, 0.1);
           let forceDx = (dx / distance) * force;
           let forceDy = (dy / distance) * force;
@@ -110,7 +117,6 @@ Promise.all([
     canvas.addEventListener("click", (e) => {
       const pos = getMousePos(canvas, e);
       // Jika gambar ditekan, ganti gambar setelah 100msg
-      ahoge.build(pos);
       if (currentNijika.clicked(pos)) {
         currentNijika = nijikaImage2;
         ahoge.build(pos);
@@ -127,40 +133,38 @@ Promise.all([
 
 let intervalId; // Menyimpan ID interval
 
-// function startMagnetInterval() {
-//   if (!intervalId) {
-//     intervalId = setInterval(() => {
-//       if (magnet.status) {
-//         deactivateMagnet();
-//       } else {
-//         activateMagnet();
-//       }
-//     }, 10000);
-//   }
-// }
+function startMagnetInterval() {
+  if (!intervalId) {
+    intervalId = setInterval(() => {
+      if (magnet.status) {
+        deactivateMagnet();
+      } else {
+        activateMagnet();
+      }
+    }, 10000);
+  }
+}
 
-// function stopMagnetInterval() {
-//   if (intervalId) {
-//     clearInterval(intervalId);
-//     intervalId = null;
-//   }
-// }
+function stopMagnetInterval() {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+}
 
-// function activateMagnet() {
-//   magnet.x = Math.random() * canvas.width * 0.9;
-//   magnet.y = Math.random() * canvas.height * 0.9;
-//   magnet.status = true;
-// }
+function activateMagnet() {
+  magnet.x = Math.random() * canvas.width * 0.9;
+  magnet.y = Math.random() * canvas.height * 0.9;
+  magnet.status = true;
+}
 
-// function deactivateMagnet() {
-//   magnet.x = null;
-//   magnet.y = null;
-//   magnet.status = false;
-// }
+function deactivateMagnet() {
+  magnet.x = null;
+  magnet.y = null;
+  magnet.status = false;
 
-// // Mulai interval magnet jika ada 10 ahoge
-// if (ahoge.item.length >= 10) {
-//   startMagnetInterval();
-// } else {
-//   stopMagnetInterval();
-// }
+  ahoge.item.forEach((p) => {
+    p.vx += (Math.random() - 0.5) * 4;
+    p.vy += (Math.random() - 0.5) * 4;
+  });
+}

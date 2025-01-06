@@ -201,8 +201,8 @@ export class Ahoge extends Images {
       vy: (Math.random() - 0.5) * 4,
   
       // Ukuran ahoge secara acak
-      imgSize: Math.floor(Math.random() * (80 - 40) + 40), // Lebar acak antara 40 dan 80
-      size: null, // Placeholder, akan dihitung di langkah berikutnya
+      imgSize: 40, // Lebar acak antara 40 dan 80
+      size: 10, // Placeholder, akan dihitung di langkah berikutnya
   
       angle: 0,
       angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
@@ -211,10 +211,6 @@ export class Ahoge extends Images {
       radius: Math.random() * 50 + 50, // Jarak untuk rotasi
       rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlambatan rotasi
     });
-  
-    // Ambil item terbaru dan hitung size berdasarkan width
-    const lastItem = this.item[this.item.length - 1];
-    lastItem.size = lastItem.imgSize / 4; // Contoh: Size adalah setengah dari width
   }
   
 
@@ -275,9 +271,7 @@ export class Magnet extends Images {
     }
 
     if (!this.imageElement) {
-      console.error(
-        "Gambar belum dimuat. Panggil loadImage() terlebih dahulu."
-      );
+        "Gambar belum dimuat. Panggil loadImage() terlebih dahulu.";
       return;
     }
 
