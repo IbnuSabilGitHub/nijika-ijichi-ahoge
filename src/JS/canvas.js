@@ -5,6 +5,7 @@ import {
   getMousePos,
   Ahoge,
   Magnet,
+  Doritos,
 } from "./function.js";
 
 const canvas = document.getElementById("canvas");
@@ -17,6 +18,7 @@ const nijikaImage1 = new Nijika("/public/assets/image/nijika-0.png");
 const nijikaImage2 = new Nijika("/public/assets/image/nijika-1.png");
 const ahoge = new Ahoge("/public/assets/image/ahoge.webp");
 const magnet = new Magnet("/public/assets/image/eww_people.png");
+const doritos = new Doritos("/public/assets/image/doritos.webp");
 
 // setup animation ahoge
 ahoge.width = 20;
@@ -28,6 +30,7 @@ Promise.all([
   nijikaImage2.loadImage(),
   ahoge.loadImage(),
   magnet.loadImage(),
+  doritos.loadImage(),
 ])
   .then(() => {
     let currentNijika = nijikaImage1;
@@ -38,6 +41,15 @@ Promise.all([
       // drawText( `Doritos : ${doritos.fill}`, 50, 80);
       // Gambar nijika
       currentNijika.draw(0, canvas.height - currentNijika.height);
+
+      // Draw logo
+      logo.draw(
+        (canvas.width - logo.width) / 2,
+        (canvas.height - logo.height) / 4,
+        logo.width,
+        logo.height,
+        0.3
+      ); // Gambar kedua di posisi (120, 0
 
       // Mulai interval magnet jika ada 10 ahoge
       if (ahoge.item.length >= 10) {
@@ -98,19 +110,24 @@ Promise.all([
         if (item.y < 0 || item.y + ahoge.height > canvas.height) {
           item.vy *= -1;
         }
-
         // Gambar ahoge
         ahoge.draw(item.x, item.y, item.rotation, item.imgSize, item.imgSize);
       });
 
-      // Draw logo
-      logo.draw(
-        (canvas.width - logo.width) / 2,
-        (canvas.height - logo.height) / 4,
-        logo.width,
-        logo.height,
-        0.3
-      ); // Gambar kedua di posisi (120, 0
+      doritos.draw(doritos.x, doritos.y, doritos.rotation);
+      console.log(`Gambar dimuat: ${doritos.width}x${doritos.height}`);
+      // Jika doritos menyentuh ground
+      if (doritos.y + doritos.height > canvas.height) {
+        doritos.handleTouchGround();
+      }else{ // Jika doritos belum menyentuh ground
+        doritos.applyGravityAndRotation();
+      }
+
+      if (doritos.isOnGround){
+        doritos.handleAfterTouchGround();
+      }
+      
+
       requestAnimationFrame(frameCanvas); // Ulangi animasi
     }
 

@@ -1,5 +1,4 @@
 // Array untuk menyimpan semua ahoge
-
 import { drawImage } from "./function.js";
 import { textConfig } from "./function.js";
 import { isInside } from "./function.js";
@@ -426,7 +425,7 @@ Promise.all([
         // Tambahkan gravitasi ke kecepatan y
         // Perbarui posisi bola
 
-        // Pantulan jika bola mencapai dasar canvas
+        // Pantulan jika doritos mencapai dasar canvas
         if (doritos.y + doritos.height > canvas.height) {
           doritos.y = canvas.height - doritos.height / 2; // Atur posisi doritos
           doritos.vy *= -doritos.bounce; // Pantulkan doritos

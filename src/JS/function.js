@@ -57,31 +57,66 @@ export function getMousePos(canvas, event) {
 
 // CLASS IMAGE -------------------------------------
 export class Images {
+  /**
+   * @param {string} src - URL gambar.
+   * @param {string} canvasId - ID elemen kanvas. Default adalah "canvas".
+   */
   constructor(src, canvasId = "canvas") {
-    this.src = src;
-    this.imageElement = null;
-    this.drawn = false;
-    this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas?.getContext("2d");
-    this.x = 0;
-    this.y = 0;
-    this.width = this.imageElement?.width || 0;
-    this.height = this.imageElement?.height || 0;
+    this.src = src; // Sumber gambar
+    this.imageElement = null; // Elemen gambar HTML
+    this.drawn = false; // Status apakah gambar telah digambar di kanvas
+    this.canvas = document.getElementById(canvasId); // Elemen kanvas
+    this.ctx = this.canvas?.getContext("2d"); // Context 2D
+    this.x = 0; // Posisi X
+    this.y = 0; // Posisi Y
+    this._width = null; // Lebar gambar
+    this._height = null; // Tinggi gambar
   }
 
-  // Memuat gambar secara asinkron
+  /**
+   * Memuat gambar secara asinkron.
+   * @returns {Promise<Images>} Resolusi dengan instance objek ini.
+   */
   loadImage() {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.src = this.src;
       img.onload = () => {
         this.imageElement = img;
-        this.width = img.width; // Menyimpan lebar gambar
-        this.height = img.height; // Menyimpan tinggi gambar
-        resolve(this); // Resolve dengan instance objek ini
+        if (this._width === null) {
+          this._width = img.width;
+        }
+        if (this._height === null) {
+          this._height = img.height;
+        }
+        resolve(this); // Resolve dengan objek ini
       };
       img.onerror = (err) => reject(new Error(`Gagal memuat gambar: ${err}`));
     });
+  }
+
+  // Getter untuk lebar gambar
+  get width() {
+    return this._width || 0;
+  }
+
+  // Setter untuk lebar gambar
+  set width(value) {
+    if (value > 0) {
+      this._width = value;
+    }
+  }
+
+  // Getter untuk tinggi gambar
+  get height() {
+    return this._height || 0;
+  }
+
+  // Setter untuk tinggi gambar
+  set height(value) {
+    if (value > 0) {
+      this._height = value;
+    }
   }
 
   clicked(pos) {
@@ -166,7 +201,7 @@ export class Ahoge extends Images {
 
   draw(
     x,
-    y ,
+    y,
     rotation,
     width = this.width,
     height = this.height,
@@ -195,15 +230,15 @@ export class Ahoge extends Images {
     this.item.push({
       x: pos.x,
       y: pos.y,
-  
+
       // Kecepatan ahoge secara acak
       vx: (Math.random() - 0.5) * 4,
       vy: (Math.random() - 0.5) * 4,
-  
+
       // Ukuran ahoge secara acak
       imgSize: 40, // Lebar acak antara 40 dan 80
       size: 10, // Placeholder, akan dihitung di langkah berikutnya
-  
+
       angle: 0,
       angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
       rotation: 0, // Rotasi ahoge
@@ -212,7 +247,6 @@ export class Ahoge extends Images {
       rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlambatan rotasi
     });
   }
-  
 
   handleCollisions() {
     for (let i = 0; i < this.item.length; i++) {
@@ -271,13 +305,12 @@ export class Magnet extends Images {
     }
 
     if (!this.imageElement) {
-        "Gambar belum dimuat. Panggil loadImage() terlebih dahulu.";
+      ("Gambar belum dimuat. Panggil loadImage() terlebih dahulu.");
       return;
     }
 
     const centerX = x - width / 2; // Pusat gambar di x
     const centerY = y - height / 2; // Pusat gambar di y
-
 
     this.ctx.save();
     this.ctx.globalAlpha = transparency;
@@ -288,10 +321,70 @@ export class Magnet extends Images {
 }
 
 export class Doritos extends Images {
-  constructor() {
-    super("assets/doritos.png"); // Panggil konstruktor kelas induk
+  constructor(src, canvasId = "canvas") {
+    super(src, canvasId); // Panggil konstruktor kelas induk
     this._fill = 0; // Inisialisasi nilai awal fill
-    this.properties(); // Panggil metode untuk mengatur properti awal
+    // Default values
+    console.log(`Lebar gambar (set di constructor): ${this.width}`);
+    this.defaultValues = {
+      x: Math.random() * canvas.width * 0.9,
+      y: 0,
+      vy: 0.2,
+      vx: 0,
+      gravity: 0.03,
+      bounce: 0.8,
+      spin: randomRotation(0, 2), // Pastikan fungsi ini dideklarasikan
+      friction: 0.99,
+      rotation: 0,
+      fill: 0,
+      width: 80,
+      height: 80,
+      isOnGround: false,
+      isDragging: false,
+      spawn: false,
+      full: false,
+      offsetX: 0,
+      offsetY: 0,
+    };
+    // this.width = this.defaultValues.width;
+    // this.height = this.defaultValues.height;
+
+    // Set default values
+    Object.assign(this, this.defaultValues);
+  }
+
+  draw(
+    x,
+    y,
+    rotation,
+    width = this.width,
+    height = this.height,
+    transparency = 1
+  ) {
+    if (!this.ctx) {
+      console.error("Konteks kanvas tidak ditemukan. Periksa ID kanvas.");
+      return;
+    }
+
+    if (!this.imageElement) {
+      console.error(
+        "Gambar belum dimuat. Panggil loadImage() terlebih dahulu."
+      );
+      return;
+    }
+
+    this.ctx.save();
+    this.ctx.translate(x, y); // Pindahkan titik tengah ke posisi ahoge
+    this.ctx.rotate((rotation * Math.PI) / 180); // Rotasi dalam radian
+    // Gambar ahoge
+    this.ctx.drawImage(
+      this.imageElement,
+      -width / 2,
+      -height / 2,
+      width,
+      height
+    );
+    this.ctx.restore();
   }
 
   get fill() {
@@ -302,38 +395,97 @@ export class Doritos extends Images {
     this._fill = Math.min(value, 40); // Nilai maksimal fill adalah 80
   }
 
-  properties() {
-    this.x = Math.random() * canvas.width * 0.9;
-    this.y = 0;
-    this.vy = 0.2;
-    this.vx = 0;
-    this.gravity = 0.03;
-    this.bounce = 0.8;
-    this.spin = randomRotation(0, 2); // Pastikan fungsi ini dideklarasikan
-    this.friction = 0.99;
-    this.rotation = 0;
-    this.fill = 0; // Nilai awal fill
-    this.width = 80;
-    this.height = 80;
-    this.isOnGround = false;
-    this.isDragging = false;
-    this.spawn = false;
-    this.full = false; // Hitung ulang nanti saat update
-    this.offsetX = 0;
-    this.offsetY = 0;
+  update() {
+    this.fill += 1;
+    this.full = this.fill >= 40; // true jika penuh
+    this.updateWidth();
   }
-
   updateWidth() {
-    // Perbesar ukuran doritos setiap 10 poin saat kelipatan 10 dari fill
+    // Perbesar ukuran doritos setiap 10 poin saat kelipatan 10 dari fill sampai penuh
     if (this.fill % 10 === 0 && !this.full) {
       this.width += 10;
       this.height += 10;
     }
   }
 
-  update() {
-    this.fill += 1; // Tambahkan nilai fill
-    this.full = this.fill >= 40; // Periksa apakah sudah penuh
-    this.updateWidth(); // Perbarui ukuran berdasarkan fill
+  reset() {
+    // Set ulang nilai ke default
+    Object.assign(this, this.defaultValues);
+  }
+
+  fallingAnimation() {
+    if (this.y + this.height > this.canvas.height) {
+      this.y = this.canvas.height - this.height / 2; // Atur posisi doritos
+      this.vy *= -this.bounce; // Pantulkan doritos
+      this.isOnGround = true; // Set status doritos di tanah
+      this.spawn = true; // Set status doritos muncul
+    } else {
+      if (!this.isDragging) {
+        this.rotation = (this.rotation + this.spin + 360) % 360; // Perbarui rotasi
+        this.vy += this.gravity;
+        this.y += this.vy;
+      }
+    }
+    if (this.isOnGround) {
+      // Sesuaikan rotasi dengan penyesuaian bertahap
+      if (this.rotation >= 0 && this.rotation < 45) {
+        // Menyesuaikan dengan penurunan bertahap menuju 0°
+        this.rotation -= 2;
+        if (this.rotation <= 0) this.rotation = 0;
+      } else if (this.rotation >= 45 && this.rotation < 135) {
+        // Menyesuaikan dengan penambahan bertahap menuju 90°
+        this.rotation += 2;
+        if (this.rotation >= 90) this.rotation = 90;
+      } else if (this.rotation >= 135 && this.rotation < 225) {
+        // Menyesuaikan dengan penambahan bertahap menuju 180°
+        this.rotation += 2;
+        if (this.rotation >= 180) this.rotation = 180;
+      } else if (this.rotation >= 225 && this.rotation < 315) {
+        // Menyesuaikan dengan penambahan bertahap menuju 270°
+        this.rotation += 2;
+        if (this.rotation >= 270) this.rotation = 270;
+      } else {
+        // Menyesuaikan dengan penurunan bertahap menuju 0°
+        this.rotation -= 2;
+        if (this.rotation <= 0) this.rotation = 0;
+      }
+    }
+  }
+
+  applyGravityAndRotation() {
+    this.rotation = (this.rotation + this.spin + 360) % 360; // Perbarui rotasi
+    this.vy += this.gravity;
+    this.y += this.vy;
+  }
+
+  handleTouchGround() {
+    this.y = this.canvas.height - this.height / 2; // Atur posisi doritos
+    this.vy *= -this.bounce; // Pantulkan doritos
+    this.isOnGround = true; // Set status doritos di tanah
+    this.spawn = true; // Set status doritos muncul
+  }
+  handleAfterTouchGround() {
+    // Sesuaikan rotasi dengan penyesuaian bertahap
+    if (this.rotation >= 0 && this.rotation < 45) {
+      // Menyesuaikan dengan penurunan bertahap menuju 0°
+      this.rotation -= 2;
+      if (this.rotation <= 0) this.rotation = 0;
+    } else if (this.rotation >= 45 && this.rotation < 135) {
+      // Menyesuaikan dengan penambahan bertahap menuju 90°
+      this.rotation += 2;
+      if (this.rotation >= 90) this.rotation = 90;
+    } else if (this.rotation >= 135 && this.rotation < 225) {
+      // Menyesuaikan dengan penambahan bertahap menuju 180°
+      this.rotation += 2;
+      if (this.rotation >= 180) this.rotation = 180;
+    } else if (this.rotation >= 225 && this.rotation < 315) {
+      // Menyesuaikan dengan penambahan bertahap menuju 270°
+      this.rotation += 2;
+      if (this.rotation >= 270) this.rotation = 270;
+    } else {
+      // Menyesuaikan dengan penurunan bertahap menuju 0°
+      this.rotation -= 2;
+      if (this.rotation <= 0) this.rotation = 0;
+    }
   }
 }
