@@ -137,6 +137,11 @@ Promise.all([
       if (currentNijika.clicked(pos)) {
         currentNijika = nijikaImage2;
         ahoge.build(pos);
+        const effectAhoge = new Audio(
+          "/public/assets/sound/happy-pop-2-185287.mp3"
+        );
+
+        effectAhoge.play();
         setTimeout(() => {
           currentNijika = nijikaImage1;
         }, 100);
@@ -156,9 +161,7 @@ Promise.all([
       if (doritos.isDragging) {
         const pos = getMousePos(canvas, e);
         doritos.draggingAnimation(pos);
-
       }
-
     });
 
     canvas.addEventListener("mouseleave", () => {
