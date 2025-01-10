@@ -39,7 +39,7 @@ export function isInside(pos, rect) {
   );
 }
 
-function randomRotation(min, max) {
+export function randomRotation(min, max) {
   const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
   const randomRotationSpeed =
     randomRotationDirection * (Math.random() * (max - min) + min);
@@ -413,45 +413,6 @@ export class Doritos extends Images {
     Object.assign(this, this.defaultValues);
   }
 
-  fallingAnimation() {
-    if (this.y + this.height > this.canvas.height) {
-      this.y = this.canvas.height - this.height / 2; // Atur posisi doritos
-      this.vy *= -this.bounce; // Pantulkan doritos
-      this.isOnGround = true; // Set status doritos di tanah
-      this.spawn = true; // Set status doritos muncul
-    } else {
-      if (!this.isDragging) {
-        this.rotation = (this.rotation + this.spin + 360) % 360; // Perbarui rotasi
-        this.vy += this.gravity;
-        this.y += this.vy;
-      }
-    }
-    if (this.isOnGround) {
-      // Sesuaikan rotasi dengan penyesuaian bertahap
-      if (this.rotation >= 0 && this.rotation < 45) {
-        // Menyesuaikan dengan penurunan bertahap menuju 0°
-        this.rotation -= 2;
-        if (this.rotation <= 0) this.rotation = 0;
-      } else if (this.rotation >= 45 && this.rotation < 135) {
-        // Menyesuaikan dengan penambahan bertahap menuju 90°
-        this.rotation += 2;
-        if (this.rotation >= 90) this.rotation = 90;
-      } else if (this.rotation >= 135 && this.rotation < 225) {
-        // Menyesuaikan dengan penambahan bertahap menuju 180°
-        this.rotation += 2;
-        if (this.rotation >= 180) this.rotation = 180;
-      } else if (this.rotation >= 225 && this.rotation < 315) {
-        // Menyesuaikan dengan penambahan bertahap menuju 270°
-        this.rotation += 2;
-        if (this.rotation >= 270) this.rotation = 270;
-      } else {
-        // Menyesuaikan dengan penurunan bertahap menuju 0°
-        this.rotation -= 2;
-        if (this.rotation <= 0) this.rotation = 0;
-      }
-    }
-  }
-
   applyGravityAndRotation() {
     this.rotation = (this.rotation + this.spin + 360) % 360; // Perbarui rotasi
     this.vy += this.gravity;
@@ -487,5 +448,31 @@ export class Doritos extends Images {
       this.rotation -= 2;
       if (this.rotation <= 0) this.rotation = 0;
     }
+  }
+
+
+  clicked(pos) {
+    /**
+     * @param {Object} pos - Posisi klik.
+     */
+    return (
+      pos.x >= this.x - this.width / 2 &&
+      pos.x <= this.x + this.width / 2 &&
+      pos.y >= this.y - this.height / 2 &&
+      pos.y <= this.y + this.height / 2
+    );
+    /**
+     * @returns {boolean} - True jika posisi klik berada di dalam doritos.
+     */
+  }
+
+  draggingAnimation(pos) {
+    const distance = pos.x - this.startX;
+    // Update posisi gambar
+    this.isOnGround = false; // Set status doritos tidak
+    this.x = pos.x - this.offsetX;
+    this.y = pos.y - this.offsetY;
+    this.rotation = distance; // Rotasi berdasarkan jarak
+    this.startX = pos.x; // Perbarui posisi awal
   }
 }

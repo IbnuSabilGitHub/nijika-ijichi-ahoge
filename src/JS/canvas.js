@@ -6,6 +6,7 @@ import {
   Ahoge,
   Magnet,
   Doritos,
+  randomRotation,
 } from "./function.js";
 
 const canvas = document.getElementById("canvas");
@@ -115,18 +116,17 @@ Promise.all([
       });
 
       doritos.draw(doritos.x, doritos.y, doritos.rotation);
-      console.log(`Gambar dimuat: ${doritos.width}x${doritos.height}`);
       // Jika doritos menyentuh ground
       if (doritos.y + doritos.height > canvas.height) {
         doritos.handleTouchGround();
-      }else{ // Jika doritos belum menyentuh ground
-        doritos.applyGravityAndRotation();
+      } else {
+        // Jika doritos belum menyentuh ground'
+        !doritos.isDragging && doritos.applyGravityAndRotation();
       }
 
-      if (doritos.isOnGround){
+      if (doritos.isOnGround) {
         doritos.handleAfterTouchGround();
       }
-      
 
       requestAnimationFrame(frameCanvas); // Ulangi animasi
     }
@@ -141,6 +141,34 @@ Promise.all([
           currentNijika = nijikaImage1;
         }, 100);
       }
+    });
+
+    canvas.addEventListener("mousedown", (e) => {
+      const pos = getMousePos(canvas, e);
+      if (doritos.clicked(pos)) {
+        console.log("Doritos clicked");
+        doritos.isDragging = true;
+        doritos.offsetX = pos.x - doritos.x;
+        doritos.offsetY = pos.y - doritos.y;
+      }
+    });
+    canvas.addEventListener("mousemove", (e) => {
+      if (doritos.isDragging) {
+        const pos = getMousePos(canvas, e);
+        doritos.draggingAnimation(pos);
+
+      }
+
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      doritos.isDragging = false;
+      doritos.spin = randomRotation(0, 1);
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      doritos.isDragging = false;
+      doritos.spin = randomRotation(0, 1);
     });
     frameCanvas();
   })

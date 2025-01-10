@@ -534,10 +534,8 @@ Promise.all([
         doritos.offsetX = mouseX - doritos.x;
         doritos.offsetY = mouseY - doritos.y;
       }
-
-
     });
-    
+
     canvas.addEventListener("mousemove", (e) => {
       if (doritos.isDragging) {
         const rect = canvas.getBoundingClientRect();
