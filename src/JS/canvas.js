@@ -100,6 +100,10 @@ Promise.all([
           if (distanceDoritos < doritos.width/2){
             ahoge.item.splice(i, 1);
             doritos.update(); // Isi doritos
+            const soundDoritos = new Audio(
+              "/public/assets/sound/plastic-crunch-83779.mp3"
+            );
+            soundDoritos.play();
             console.log("ahoge ke", i, "telah dihapus");
           }
         }
