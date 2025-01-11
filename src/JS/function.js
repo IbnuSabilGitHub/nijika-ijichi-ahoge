@@ -475,4 +475,6 @@ export class Doritos extends Images {
     this.rotation = distance; // Rotasi berdasarkan jarak
     this.startX = pos.x; // Perbarui posisi awal
   }
+
+  
 }
