@@ -39,7 +39,7 @@ Promise.all([
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawText(ctx, "Developed by IBNU with ❤️", 115, 18);
       drawText(ctx, `Ahoge : ${ahoge.item.length}`, 50, 50);
-      // drawText( `Doritos : ${doritos.fill}`, 50, 80);
+      drawText( ctx,`Doritos : ${doritos.fill}`, 50, 80);
       // Gambar nijika
       currentNijika.draw(0, canvas.height - currentNijika.height);
 
