@@ -83,12 +83,10 @@ Promise.all([
           item.vx *= ahoge.damping;
           item.vy *= ahoge.damping;
 
-          // // tandai ahoge ke berapa yang akan dihapus jika melewati batas jarak
-          // if (distance <= 50 && !ahoge.toRemove.includes(i)) {
-          //   ahoge.toRemove.push(i);
-          //   // console.log("ahoge ke", i, "akan dihapus");
-          //   // console.log(ahoge.toRemove.length);
-          // }
+          // tandai ahoge ke berapa yang akan dihapus jika melewati batas jarak
+          if (distance <= 50 && !ahoge.toRemove.includes(i)) {
+            ahoge.toRemove.push(i);
+          }
         }
 
         if (doritos.isDragging && !doritos.full) {
@@ -104,7 +102,6 @@ Promise.all([
               "/public/assets/sound/plastic-crunch-83779.mp3"
             );
             soundDoritos.play();
-            console.log("ahoge ke", i, "telah dihapus");
           }
         }
 
@@ -144,6 +141,9 @@ Promise.all([
       if (doritos.isOnGround) {
         doritos.handleAfterTouchGround();
       }
+
+      magnet.removeAhogeWithDelay(ahoge,timestamp)
+
 
       requestAnimationFrame(frameCanvas); // Ulangi animasi
     }
@@ -227,9 +227,12 @@ function deactivateMagnet() {
   magnet.x = null;
   magnet.y = null;
   magnet.status = false;
+  magnet.isEat = false;
 
   ahoge.item.forEach((p) => {
     p.vx += (Math.random() - 0.5) * 4;
     p.vy += (Math.random() - 0.5) * 4;
   });
+
+  ahoge.toRemove = [];
 }

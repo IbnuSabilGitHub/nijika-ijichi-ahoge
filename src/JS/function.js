@@ -291,6 +291,10 @@ export class Magnet extends Images {
     this.x = null;
     this.y = null;
     this.status = false;
+    this.isEat = false;
+    this.removalInterval = 1000; // Interval waktu penghapusan dalam milidetik
+    this.lastRemovalTime = 0; // Waktu penghapusan terakhir
+    this.ahoge = new Ahoge("/public/assets/ahoge.png");
   }
   draw(
     x = this.x,
@@ -317,6 +321,55 @@ export class Magnet extends Images {
     this.ctx.drawImage(this.imageElement, centerX, centerY, width, height);
     this.ctx.restore();
     this.drawn = true;
+  }
+
+  removeAhogeWithDelay(ahoge, timestamp) {
+    // Validasi bahwa parameter 'ahoge' adalah instance dari kelas Ahoge
+    this.validateAhogeInstance(ahoge);
+
+    const timeSinceLastRemoval = timestamp - this.lastRemovalTime;
+    const canEat = this.canRemoveAhoge(ahoge);
+
+    if (canEat && timeSinceLastRemoval >= this.removalInterval) {
+      this.removeAhoge(ahoge, timestamp); // Proses penghapusan
+    } else {
+      this.prepareForNextRemoval(timeSinceLastRemoval); // Siapkan status untuk penghapusan berikutnya
+    }
+  }
+
+  // Validasi apakah parameter adalah instance dari kelas Ahoge
+  validateAhogeInstance(ahoge) {
+    if (!(ahoge instanceof Ahoge)) {
+      throw new Error(
+        "Parameter 'ahoge' harus merupakan instance dari kelas Ahoge."
+      );
+    }
+  }
+
+  // Periksa apakah kondisi untuk menghapus Ahoge terpenuhi
+  canRemoveAhoge(ahoge) {
+    return (
+      this.status && 
+      this.isEat && 
+      ahoge.item.length >= 10 && 
+      ahoge.toRemove.length > 0
+    );
+  }
+
+  // Proses penghapusan Ahoge
+  removeAhoge(ahoge, timestamp) {
+    const index = ahoge.toRemove.shift(); // Ambil item pertama dari antrian
+    ahoge.item.splice(index, 1); // Hapus item dari array
+    this.lastRemovalTime = timestamp; // Perbarui waktu penghapusan terakhir
+    this.isEat = false; // Matikan status magnet
+    console.log("Ahoge dimakan");
+  }
+
+  // Siapkan status untuk penghapusan berikutnya
+  prepareForNextRemoval(timeSinceLastRemoval) {
+    if (timeSinceLastRemoval >= this.removalInterval) {
+      this.isEat = true; // Aktifkan status untuk penghapusan berikutnya
+    }
   }
 }
 
@@ -450,7 +503,6 @@ export class Doritos extends Images {
     }
   }
 
-
   clicked(pos) {
     /**
      * @param {Object} pos - Posisi klik.
@@ -475,6 +527,4 @@ export class Doritos extends Images {
     this.rotation = distance; // Rotasi berdasarkan jarak
     this.startX = pos.x; // Perbarui posisi awal
   }
-
-  
 }
