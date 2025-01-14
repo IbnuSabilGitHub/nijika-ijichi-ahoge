@@ -349,7 +349,6 @@ export class Magnet extends Images {
   // Periksa apakah kondisi untuk menghapus Ahoge terpenuhi
   canRemoveAhoge(ahoge) {
     return (
-      this.status && 
       this.isEat && 
       ahoge.item.length >= 10 && 
       ahoge.toRemove.length > 0
@@ -362,7 +361,6 @@ export class Magnet extends Images {
     ahoge.item.splice(index, 1); // Hapus item dari array
     this.lastRemovalTime = timestamp; // Perbarui waktu penghapusan terakhir
     this.isEat = false; // Matikan status magnet
-    console.log("Ahoge dimakan");
   }
 
   // Siapkan status untuk penghapusan berikutnya

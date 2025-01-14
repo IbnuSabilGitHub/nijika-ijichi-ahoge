@@ -39,7 +39,7 @@ Promise.all([
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawText(ctx, "Developed by IBNU with ❤️", 115, 18);
       drawText(ctx, `Ahoge : ${ahoge.item.length}`, 50, 50);
-      drawText( ctx,`Doritos : ${doritos.fill}`, 50, 80);
+      drawText(ctx, `Doritos : ${doritos.fill}`, 50, 80);
       // Gambar nijika
       currentNijika.draw(0, canvas.height - currentNijika.height);
 
@@ -53,13 +53,14 @@ Promise.all([
       ); // Gambar kedua di posisi (120, 0
 
       // Mulai interval magnet jika ada 10 ahoge
-      if (ahoge.item.length >= 10) {
+      if (ahoge.item.length > 10) {
         startMagnetInterval();
       } else {
         stopMagnetInterval();
       }
       if (magnet.status) {
         magnet.draw(magnet.x, magnet.y, 150, 150);
+        magnet.removeAhogeWithDelay(ahoge, timestamp);
       }
 
       // hanya saat ada ahoge, tangani tabrakan(menggunakan Optinoal Chaining)
@@ -95,7 +96,7 @@ Promise.all([
             (doritos.x - item.x) ** 2 + (doritos.y - item.y) ** 2
           );
 
-          if (distanceDoritos < doritos.width/2){
+          if (distanceDoritos < doritos.width / 2) {
             ahoge.item.splice(i, 1);
             doritos.update(); // Isi doritos
             const soundDoritos = new Audio(
@@ -141,9 +142,6 @@ Promise.all([
       if (doritos.isOnGround) {
         doritos.handleAfterTouchGround();
       }
-
-      magnet.removeAhogeWithDelay(ahoge,timestamp)
-
 
       requestAnimationFrame(frameCanvas); // Ulangi animasi
     }
@@ -214,6 +212,7 @@ function stopMagnetInterval() {
   if (intervalId) {
     clearInterval(intervalId);
     intervalId = null;
+    deactivateMagnet();
   }
 }
 
