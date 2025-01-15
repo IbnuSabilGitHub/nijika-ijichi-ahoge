@@ -292,6 +292,7 @@ export class Magnet extends Images {
     this.y = null;
     this.status = false;
     this.isEat = false;
+    this.intervalId; // Menyimpan ID interval
     this.removalInterval = 1000; // Interval waktu penghapusan dalam milidetik
     this.lastRemovalTime = 0; // Waktu penghapusan terakhir
     this.ahoge = new Ahoge("/public/assets/ahoge.png");
@@ -348,11 +349,7 @@ export class Magnet extends Images {
 
   // Periksa apakah kondisi untuk menghapus Ahoge terpenuhi
   canRemoveAhoge(ahoge) {
-    return (
-      this.isEat && 
-      ahoge.item.length >= 10 && 
-      ahoge.toRemove.length > 0
-    );
+    return this.isEat && ahoge.item.length >= 10 && ahoge.toRemove.length > 0;
   }
 
   // Proses penghapusan Ahoge
@@ -368,6 +365,48 @@ export class Magnet extends Images {
     if (timeSinceLastRemoval >= this.removalInterval) {
       this.isEat = true; // Aktifkan status untuk penghapusan berikutnya
     }
+  }
+
+  startMagnetInterval(ahoge) {
+    this.validateAhogeInstance(ahoge);
+    if (!this.intervalId) {
+      this.intervalId = setInterval(() => {
+        if (this.status) {
+          this.deactivateMagnet(ahoge);
+        } else {
+          this.activateMagnet();
+        }
+      }, 10000);
+    }
+  }
+  
+  stopMagnetInterval(ahoge) {
+    this.validateAhogeInstance(ahoge);
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      this.deactivateMagnet(ahoge);
+    }
+  }
+  
+  activateMagnet() {
+    this.x = Math.random() * this.canvas.width * 0.9;
+    this.y = Math.random() * this.canvas.height * 0.9;
+    this.status = true;
+  }
+  
+  deactivateMagnet(ahoge) {
+    this.x = null;
+    this.y = null;
+    this.status = false;
+    this.isEat = false;
+  
+    ahoge.item.forEach((p) => {
+      p.vx += (Math.random() - 0.5) * 4;
+      p.vy += (Math.random() - 0.5) * 4;
+    });
+  
+    ahoge.toRemove = [];
   }
 }
 

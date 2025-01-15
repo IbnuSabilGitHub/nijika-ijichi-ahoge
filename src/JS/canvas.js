@@ -14,7 +14,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth; // Lebar kanvas mengikuti lebar layar
 canvas.height = window.innerHeight; // leabr kanvas mengikuti tinggi layar
 
-const logo = new Images("/public/assets/image/Kessoku_Band_Logo.svg"); // I,ahe Logo
+const logo = new Images("/public/assets/image/Kessoku_Band_Logo.svg");
 const nijikaImage1 = new Nijika("/public/assets/image/nijika-0.png");
 const nijikaImage2 = new Nijika("/public/assets/image/nijika-1.png");
 const ahoge = new Ahoge("/public/assets/image/ahoge.webp");
@@ -54,9 +54,9 @@ Promise.all([
 
       // Mulai interval magnet jika ada 10 ahoge
       if (ahoge.item.length > 10) {
-        startMagnetInterval();
+        magnet.startMagnetInterval(ahoge);
       } else {
-        stopMagnetInterval();
+        magnet.stopMagnetInterval(ahoge);
       }
       if (magnet.status) {
         magnet.draw(magnet.x, magnet.y, 150, 150);
@@ -194,44 +194,5 @@ Promise.all([
     console.error("Error loading images:", error);
   });
 
-let intervalId; // Menyimpan ID interval
 
-function startMagnetInterval() {
-  if (!intervalId) {
-    intervalId = setInterval(() => {
-      if (magnet.status) {
-        deactivateMagnet();
-      } else {
-        activateMagnet();
-      }
-    }, 10000);
-  }
-}
 
-function stopMagnetInterval() {
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
-    deactivateMagnet();
-  }
-}
-
-function activateMagnet() {
-  magnet.x = Math.random() * canvas.width * 0.9;
-  magnet.y = Math.random() * canvas.height * 0.9;
-  magnet.status = true;
-}
-
-function deactivateMagnet() {
-  magnet.x = null;
-  magnet.y = null;
-  magnet.status = false;
-  magnet.isEat = false;
-
-  ahoge.item.forEach((p) => {
-    p.vx += (Math.random() - 0.5) * 4;
-    p.vy += (Math.random() - 0.5) * 4;
-  });
-
-  ahoge.toRemove = [];
-}
