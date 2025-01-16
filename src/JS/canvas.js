@@ -163,21 +163,11 @@ Promise.all([
       }
     });
 
-    canvas.addEventListener("mousedown", (e) => {
-      doritos.clicked(e);
-    });
-
-    canvas.addEventListener("mousemove", (e) => {
-      doritos.dragging(e);
-    });
-
-    canvas.addEventListener("mouseleave", () => {
-      doritos.stopDragging();
-    });
-
-    canvas.addEventListener("mouseup", () => {
-      doritos.stopDragging();
-    });
+    canvas.addEventListener("mousedown", doritos.clicked.bind(doritos));
+    canvas.addEventListener("mousemove", doritos.dragging.bind(doritos));
+    canvas.addEventListener("mouseleave", doritos.stopDragging.bind(doritos));
+    canvas.addEventListener("mouseup", doritos.stopDragging.bind(doritos));
+    
     frameCanvas();
   })
   .catch((error) => {
