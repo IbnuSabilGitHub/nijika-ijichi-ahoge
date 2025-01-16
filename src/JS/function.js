@@ -98,7 +98,6 @@ export class Images {
     });
   }
 
-
   clicked(pos) {
     return (
       pos.x > this.x &&
@@ -146,9 +145,11 @@ export class Nijika extends Images {
     this.targetY = 115; // Posisi y ahoge dalam gambar asli
     this.targetWidth = 30; // Lebar area ahoge
     this.targetHeight = 40; // Tinggi area ahoge
+    this.currentImage = false; // Gambar saat ini
+    this.soundEffect = new Audio("/public/assets/sound/happy-pop-2-185287.mp3");
   }
 
-  clicked(pos) {
+  inside(pos) {
     if (!this.drawn) {
       return false;
     } // Jika gambar belum digambar, keluar
@@ -166,6 +167,19 @@ export class Nijika extends Images {
     )
       return true;
     return false;
+  }
+
+  clicked(e, ahoge, objectDefult, objectChange, setCurrent) {
+    const pos = getMousePos(canvas, e);
+    // Jika gambar ditekan, ganti gambar setelah 100msg
+    if (this.inside(pos)) {
+      setCurrent(objectChange);
+      ahoge.build(pos);
+      this.soundEffect.play();
+      setTimeout(() => {
+        setCurrent(objectDefult);
+      }, 100);
+    }
   }
 }
 
@@ -565,3 +579,4 @@ export class Doritos extends Images {
     this.spin = randomRotation(0, 1);
   }
 }
+

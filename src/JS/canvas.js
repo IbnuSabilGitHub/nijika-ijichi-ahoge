@@ -147,32 +147,23 @@ Promise.all([
     }
 
     canvas.addEventListener("click", (e) => {
-      const pos = getMousePos(canvas, e);
-      // Jika gambar ditekan, ganti gambar setelah 100msg
-      if (currentNijika.clicked(pos)) {
-        currentNijika = nijikaImage2;
-        ahoge.build(pos);
-        const effectAhoge = new Audio(
-          "/public/assets/sound/happy-pop-2-185287.mp3"
-        );
-
-        effectAhoge.play();
-        setTimeout(() => {
-          currentNijika = nijikaImage1;
-        }, 100);
-      }
+      currentNijika.clicked(
+        e,
+        ahoge,
+        nijikaImage1,
+        nijikaImage2,
+        (switchObject) => {
+          currentNijika = switchObject; // Tetapkan gambar baru ke currentNijika
+        }
+      );
     });
 
     canvas.addEventListener("mousedown", doritos.clicked.bind(doritos));
     canvas.addEventListener("mousemove", doritos.dragging.bind(doritos));
     canvas.addEventListener("mouseleave", doritos.stopDragging.bind(doritos));
     canvas.addEventListener("mouseup", doritos.stopDragging.bind(doritos));
-    
     frameCanvas();
   })
   .catch((error) => {
     console.error("Error loading images:", error);
   });
-
-
-
