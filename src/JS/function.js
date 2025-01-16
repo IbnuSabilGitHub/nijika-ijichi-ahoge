@@ -72,8 +72,8 @@ export class Images {
     this.ctx = this.canvas?.getContext("2d"); // Context 2D
     this.x = 0; // Posisi X
     this.y = 0; // Posisi Y
-    this._width = null; // Lebar gambar
-    this._height = null; // Tinggi gambar
+    this.width = null; // Lebar gambar
+    this.height = null; // Tinggi gambar
   }
 
   /**
@@ -86,11 +86,11 @@ export class Images {
       img.src = this.src;
       img.onload = () => {
         this.imageElement = img;
-        if (this._width === null) {
-          this._width = img.width;
+        if (this.width === null) {
+          this.width = img.width;
         }
-        if (this._height === null) {
-          this._height = img.height;
+        if (this.height === null) {
+          this.height = img.height;
         }
         resolve(this); // Resolve dengan objek ini
       };
@@ -98,29 +98,6 @@ export class Images {
     });
   }
 
-  // Getter untuk lebar gambar
-  get width() {
-    return this._width || 0;
-  }
-
-  // Setter untuk lebar gambar
-  set width(value) {
-    if (value > 0) {
-      this._width = value;
-    }
-  }
-
-  // Getter untuk tinggi gambar
-  get height() {
-    return this._height || 0;
-  }
-
-  // Setter untuk tinggi gambar
-  set height(value) {
-    if (value > 0) {
-      this._height = value;
-    }
-  }
 
   clicked(pos) {
     return (
