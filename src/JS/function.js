@@ -66,6 +66,9 @@ export class Images {
     this.imageElement = null; // Elemen gambar HTML
     this.drawn = false; // Status apakah gambar telah digambar di kanvas
     this.canvas = document.getElementById(canvasId); // Elemen kanvas
+    if (!canvas) {
+      throw new Error(`Canvas with ID "${canvasId}" not found.`);
+    }
     this.ctx = this.canvas?.getContext("2d"); // Context 2D
     this.x = 0; // Posisi X
     this.y = 0; // Posisi Y
@@ -379,7 +382,7 @@ export class Magnet extends Images {
       }, 10000);
     }
   }
-  
+
   stopMagnetInterval(ahoge) {
     this.validateAhogeInstance(ahoge);
     if (this.intervalId) {
@@ -388,24 +391,24 @@ export class Magnet extends Images {
       this.deactivateMagnet(ahoge);
     }
   }
-  
+
   activateMagnet() {
     this.x = Math.random() * this.canvas.width * 0.9;
     this.y = Math.random() * this.canvas.height * 0.9;
     this.status = true;
   }
-  
+
   deactivateMagnet(ahoge) {
     this.x = null;
     this.y = null;
     this.status = false;
     this.isEat = false;
-  
+
     ahoge.item.forEach((p) => {
       p.vx += (Math.random() - 0.5) * 4;
       p.vy += (Math.random() - 0.5) * 4;
     });
-  
+
     ahoge.toRemove = [];
   }
 }
@@ -540,7 +543,7 @@ export class Doritos extends Images {
     }
   }
 
-  clicked(pos) {
+  inside(pos) {
     /**
      * @param {Object} pos - Posisi klik.
      */
@@ -555,6 +558,21 @@ export class Doritos extends Images {
      */
   }
 
+  clicked(e) {
+    const pos = getMousePos(this.canvas, e);
+    if (this.clicked(pos)) {
+      this.isDragging = true;
+      this.offsetX = pos.x - this.x;
+      this.offsetY = pos.y - this.y;
+    }
+  }
+  dragging(e) {
+    if (this.isDragging) {
+      const pos = getMousePos(this.canvas, e);
+      this.draggingAnimation(pos);
+    }
+  }
+
   draggingAnimation(pos) {
     const distance = pos.x - this.startX;
     // Update posisi gambar
@@ -563,5 +581,10 @@ export class Doritos extends Images {
     this.y = pos.y - this.offsetY;
     this.rotation = distance; // Rotasi berdasarkan jarak
     this.startX = pos.x; // Perbarui posisi awal
+  }
+
+  stopDragging() {
+    this.isDragging = false;
+    this.spin = randomRotation(0, 1);
   }
 }

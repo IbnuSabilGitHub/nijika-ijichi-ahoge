@@ -50,7 +50,7 @@ Promise.all([
         logo.width,
         logo.height,
         0.3
-      ); // Gambar kedua di posisi (120, 0
+      );
 
       // Mulai interval magnet jika ada 10 ahoge
       if (ahoge.item.length > 10) {
@@ -166,27 +166,22 @@ Promise.all([
     canvas.addEventListener("mousedown", (e) => {
       const pos = getMousePos(canvas, e);
       if (doritos.clicked(pos)) {
-        console.log("Doritos clicked");
         doritos.isDragging = true;
         doritos.offsetX = pos.x - doritos.x;
         doritos.offsetY = pos.y - doritos.y;
       }
     });
+
     canvas.addEventListener("mousemove", (e) => {
-      if (doritos.isDragging) {
-        const pos = getMousePos(canvas, e);
-        doritos.draggingAnimation(pos);
-      }
+      doritos.dragging(e);
     });
 
     canvas.addEventListener("mouseleave", () => {
-      doritos.isDragging = false;
-      doritos.spin = randomRotation(0, 1);
+      doritos.stopDragging();
     });
 
     canvas.addEventListener("mouseup", () => {
-      doritos.isDragging = false;
-      doritos.spin = randomRotation(0, 1);
+      doritos.stopDragging();
     });
     frameCanvas();
   })
