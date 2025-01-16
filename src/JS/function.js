@@ -146,7 +146,8 @@ export class Nijika extends Images {
     this.targetWidth = 30; // Lebar area ahoge
     this.targetHeight = 40; // Tinggi area ahoge
     this.currentImage = false; // Gambar saat ini
-    this.soundEffect = new Audio("/public/assets/sound/happy-pop-2-185287.mp3");
+    this.soundEffect = new AudioPool("/public/assets/sound/happy-pop-2-185287.mp3",2); // Suara efek
+
   }
 
   inside(pos) {
@@ -580,3 +581,20 @@ export class Doritos extends Images {
   }
 }
 
+class AudioPool {
+  constructor(src, poolSize = 5) {
+    // Membuat pool dengan sejumlah instance Audio
+    this.pool = Array.from({ length: poolSize }, () => new Audio(src));
+    this.index = 0;  // Menyimpan indeks untuk memilih Audio dari pool
+  }
+
+  // Fungsi untuk memainkan suara dari pool
+  play() {
+    const audio = this.pool[this.index];  // Mengambil audio sesuai dengan indeks
+    audio.currentTime = 0;  // Reset posisi audio ke awal (jika sudah selesai diputar)
+    audio.play();  // Memainkan audio
+
+    // Rotasi indeks audio untuk memilih objek berikutnya pada pemutaran selanjutnya
+    this.index = (this.index + 1) % this.pool.length;
+  }
+}
