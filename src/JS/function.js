@@ -537,7 +537,7 @@ export class Doritos extends Images {
 
   clicked(e) {
     const pos = getMousePos(this.canvas, e);
-    if (this.clicked(pos)) {
+    if (this.inside(pos)) {
       this.isDragging = true;
       this.offsetX = pos.x - this.x;
       this.offsetY = pos.y - this.y;

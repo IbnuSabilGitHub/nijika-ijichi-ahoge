@@ -164,12 +164,7 @@ Promise.all([
     });
 
     canvas.addEventListener("mousedown", (e) => {
-      const pos = getMousePos(canvas, e);
-      if (doritos.clicked(pos)) {
-        doritos.isDragging = true;
-        doritos.offsetX = pos.x - doritos.x;
-        doritos.offsetY = pos.y - doritos.y;
-      }
+      doritos.clicked(e);
     });
 
     canvas.addEventListener("mousemove", (e) => {
