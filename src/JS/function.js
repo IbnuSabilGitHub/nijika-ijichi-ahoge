@@ -426,7 +426,6 @@ export class Doritos extends Images {
       height: 80,
       isOnGround: false,
       isDragging: false,
-      spawn: false,
       full: false,
       offsetX: 0,
       offsetY: 0,
@@ -499,18 +498,20 @@ export class Doritos extends Images {
   }
 
   applyGravityAndRotation() {
+    // if (this.isDragging) return; // Jika doritos sedang ditarik, keluar
     this.rotation = (this.rotation + this.spin + 360) % 360; // Perbarui rotasi
     this.vy += this.gravity;
     this.y += this.vy;
   }
 
   handleTouchGround() {
+    if (this.y + this.height < this.canvas.height) return; // Jika doritos belum menyentuh ground, keluar
     this.y = this.canvas.height - this.height / 2; // Atur posisi doritos
     this.vy *= -this.bounce; // Pantulkan doritos
     this.isOnGround = true; // Set status doritos di tanah
-    this.spawn = true; // Set status doritos muncul
   }
   handleAfterTouchGround() {
+    if (!this.isOnGround) return; // Jika doritos tidak di tanah, keluar
     // Sesuaikan rotasi dengan penyesuaian bertahap
     if (this.rotation >= 0 && this.rotation < 45) {
       // Menyesuaikan dengan penurunan bertahap menuju 0°

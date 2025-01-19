@@ -131,17 +131,12 @@ Promise.all([
       });
 
       doritos.draw(doritos.x, doritos.y, doritos.rotation);
-      // Jika doritos menyentuh ground
-      if (doritos.y + doritos.height > canvas.height) {
-        doritos.handleTouchGround();
-      } else {
-        // Jika doritos belum menyentuh ground'
-        !doritos.isDragging && doritos.applyGravityAndRotation();
-      }
 
-      if (doritos.isOnGround) {
-        doritos.handleAfterTouchGround();
-      }
+      doritos.applyGravityAndRotation();
+
+      doritos.handleTouchGround();
+
+      doritos.handleAfterTouchGround();
 
       requestAnimationFrame(frameCanvas); // Ulangi animasi
     }
