@@ -105,27 +105,11 @@ Promise.all([
             soundDoritos.play();
           }
         }
+        
+        ahoge.updatePosition(item);
+        ahoge.updateRotation(item);
 
-        // Perbarui posisi ahoge
-        item.x += item.vx;
-        item.y += item.vy;
-
-        // Perbarui rotasi ahoge
-        item.angle += item.angularSpeed || 0;
-        item.x += Math.cos(item.angle) * item.radius * 0.01;
-        item.y += Math.sin(item.angle) * item.radius * 0.01;
-
-        // Update rotasi berputar dan melambat secara bertahap
-        item.rotation += item.rotationSpeed;
-        item.rotationSpeed *= 1 - item.rotationSlowdown;
-
-        // Batasi ahoge agar tidak keluar dari layar
-        if (item.x < 0 || item.x + ahoge.width > canvas.width) {
-          item.vx *= -1;
-        }
-        if (item.y < 0 || item.y + ahoge.height > canvas.height) {
-          item.vy *= -1;
-        }
+        ahoge.keepWithinCanvas(item);
         // Gambar ahoge
         ahoge.draw(item.x, item.y, item.rotation, item.imgSize, item.imgSize);
       });

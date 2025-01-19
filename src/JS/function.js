@@ -146,8 +146,10 @@ export class Nijika extends Images {
     this.targetWidth = 30; // Lebar area ahoge
     this.targetHeight = 40; // Tinggi area ahoge
     this.currentImage = false; // Gambar saat ini
-    this.soundEffect = new AudioPool("/public/assets/sound/happy-pop-2-185287.mp3",2); // Suara efek
-
+    this.soundEffect = new AudioPool(
+      "/public/assets/sound/happy-pop-2-185287.mp3",
+      2
+    ); // Suara efek
   }
 
   inside(pos) {
@@ -235,12 +237,33 @@ export class Ahoge extends Images {
       size: 10, // Placeholder, akan dihitung di langkah berikutnya
 
       angle: 0,
-      angularSpeed: (Math.random() - 0.5) * 0.05, // Kecepatan rotasi awal
+      angularSpeed: (Math.random() - 0.7) * 0.05, // Kecepatan rotasi awal
       rotation: 0, // Rotasi ahoge
       rotationSpeed: randomRotation(0, 5), // Kecepatan rotasi yang lebih lambat
       radius: Math.random() * 50 + 50, // Jarak untuk rotasi
       rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlambatan rotasi
     });
+  }
+
+  keepWithinCanvas(item) {
+    const { width, height, canvas } = this;
+
+    if (item.x < 0 || item.x + width > canvas.width) item.vx *= -1;
+    if (item.y < 0 || item.y + height > canvas.height) item.vy *= -1;
+  }
+
+  updatePosition(item) {
+    item.x += item.vx;
+    item.y += item.vy;
+  }
+
+  updateRotation(item) {
+    item.angle += item.angularSpeed || 0;
+    item.x += Math.cos(item.angle) * item.radius * 0.01;
+    item.y += Math.sin(item.angle) * item.radius * 0.01;
+
+    item.rotation += item.rotationSpeed;
+    item.rotationSpeed *= 1 - item.rotationSlowdown;
   }
 
   handleCollisions() {
@@ -586,14 +609,14 @@ class AudioPool {
   constructor(src, poolSize = 5) {
     // Membuat pool dengan sejumlah instance Audio
     this.pool = Array.from({ length: poolSize }, () => new Audio(src));
-    this.index = 0;  // Menyimpan indeks untuk memilih Audio dari pool
+    this.index = 0; // Menyimpan indeks untuk memilih Audio dari pool
   }
 
   // Fungsi untuk memainkan suara dari pool
   play() {
-    const audio = this.pool[this.index];  // Mengambil audio sesuai dengan indeks
-    audio.currentTime = 0;  // Reset posisi audio ke awal (jika sudah selesai diputar)
-    audio.play();  // Memainkan audio
+    const audio = this.pool[this.index]; // Mengambil audio sesuai dengan indeks
+    audio.currentTime = 0; // Reset posisi audio ke awal (jika sudah selesai diputar)
+    audio.play(); // Memainkan audio
 
     // Rotasi indeks audio untuk memilih objek berikutnya pada pemutaran selanjutnya
     this.index = (this.index + 1) % this.pool.length;
