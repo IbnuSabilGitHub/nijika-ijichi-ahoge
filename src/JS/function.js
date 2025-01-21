@@ -55,6 +55,15 @@ export function getMousePos(canvas, event) {
   };
 }
 
+// Validasi apakah parameter adalah instance dari kelas Ahoge
+function validateAhogeInstance(ahoge) {
+  if (!(ahoge instanceof Ahoge)) {
+    throw new Error(
+      "Parameter 'ahoge' harus merupakan instance dari kelas Ahoge."
+    );
+  }
+}
+
 // CLASS IMAGE -------------------------------------
 export class Images {
   /**
@@ -344,7 +353,7 @@ export class Magnet extends Images {
 
   removeAhogeWithDelay(ahoge, timestamp) {
     // Validasi bahwa parameter 'ahoge' adalah instance dari kelas Ahoge
-    this.validateAhogeInstance(ahoge);
+    validateAhogeInstance(ahoge);
 
     const timeSinceLastRemoval = timestamp - this.lastRemovalTime;
     const canEat = this.canRemoveAhoge(ahoge);
@@ -353,15 +362,6 @@ export class Magnet extends Images {
       this.removeAhoge(ahoge, timestamp); // Proses penghapusan
     } else {
       this.prepareForNextRemoval(timeSinceLastRemoval); // Siapkan status untuk penghapusan berikutnya
-    }
-  }
-
-  // Validasi apakah parameter adalah instance dari kelas Ahoge
-  validateAhogeInstance(ahoge) {
-    if (!(ahoge instanceof Ahoge)) {
-      throw new Error(
-        "Parameter 'ahoge' harus merupakan instance dari kelas Ahoge."
-      );
     }
   }
 
@@ -386,7 +386,7 @@ export class Magnet extends Images {
   }
 
   startMagnetInterval(ahoge) {
-    this.validateAhogeInstance(ahoge);
+    validateAhogeInstance(ahoge);
     if (!this.intervalId) {
       this.intervalId = setInterval(() => {
         if (this.status) {
@@ -399,7 +399,7 @@ export class Magnet extends Images {
   }
 
   stopMagnetInterval(ahoge) {
-    this.validateAhogeInstance(ahoge);
+    validateAhogeInstance(ahoge);
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
@@ -431,7 +431,10 @@ export class Magnet extends Images {
 export class Doritos extends Images {
   constructor(src, canvasId = "canvas") {
     super(src, canvasId); // Panggil konstruktor kelas induk
-    this._fill = 0; // Inisialisasi nilai awal fill
+    this.soundEffect = new AudioPool(
+      "/public/assets/sound/plastic-crunch-83779.mp3",
+      5
+    );
     // Default values
     console.log(`Lebar gambar (set di constructor): ${this.width}`);
     this.defaultValues = {
@@ -603,8 +606,24 @@ export class Doritos extends Images {
     this.isDragging = false;
     this.spin = randomRotation(0, 1);
   }
-}
 
+  calculateDistance(pointA, pointB) {
+    const deltaX = pointA.x - pointB.x;
+    const deltaY = pointA.y - pointB.y;
+    return Math.sqrt(deltaX ** 2 + deltaY ** 2);
+  }
+
+  fillDoritos(ahogeItem, item,index) {
+    if (!this.isDragging && this.full) return; // Jika doritos penuh atau tidak sedang ditarik, keluar
+    let distanceDoritos = this.calculateDistance(this, item);
+
+    if (distanceDoritos < this.width / 2) {
+      ahogeItem.splice(index, 1);
+      this.update(); // Isi doritos
+      this.soundEffect.play();
+    }
+  }
+}
 class AudioPool {
   constructor(src, poolSize = 5) {
     // Membuat pool dengan sejumlah instance Audio

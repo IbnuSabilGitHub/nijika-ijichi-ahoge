@@ -90,25 +90,10 @@ Promise.all([
           }
         }
 
-        if (doritos.isDragging && !doritos.full) {
-          // Hitung jarak antara doritos dan ahoge
-          let distanceDoritos = Math.sqrt(
-            (doritos.x - item.x) ** 2 + (doritos.y - item.y) ** 2
-          );
-
-          if (distanceDoritos < doritos.width / 2) {
-            ahoge.item.splice(i, 1);
-            doritos.update(); // Isi doritos
-            const soundDoritos = new Audio(
-              "/public/assets/sound/plastic-crunch-83779.mp3"
-            );
-            soundDoritos.play();
-          }
-        }
+        doritos.fillDoritos(ahoge.item, item, i);
         
         ahoge.updatePosition(item);
         ahoge.updateRotation(item);
-
         ahoge.keepWithinCanvas(item);
         // Gambar ahoge
         ahoge.draw(item.x, item.y, item.rotation, item.imgSize, item.imgSize);
