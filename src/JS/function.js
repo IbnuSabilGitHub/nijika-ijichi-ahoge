@@ -276,40 +276,52 @@ export class Ahoge extends Images {
   }
 
   handleCollisions() {
-    for (let i = 0; i < this.item.length; i++) {
+    this.item.forEach((item1, i) => {
       for (let j = i + 1; j < this.item.length; j++) {
-        const item1 = this.item[i];
         const item2 = this.item[j];
-
-        const dx = item2.x - item1.x;
-        const dy = item2.y - item1.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
+  
+        const distance = this.calculateDistance(item1, item2);
+  
         // Jika item bertabrakan
         if (distance < item1.size + item2.size) {
-          // Pantulkan item
-          const angle = Math.atan2(dy, dx);
-          const sin = Math.sin(angle);
-          const cos = Math.cos(angle);
-
-          // Pisahkan item sedikit
-          const overlap = (item1.size + item2.size - distance) / 2;
-          item1.x -= overlap * cos;
-          item1.y -= overlap * sin;
-          item2.x += overlap * cos;
-          item2.y += overlap * sin;
-
-          // Tukar kecepatan
-          const tempVx = item1.vx;
-          const tempVy = item1.vy;
-          item1.vx = item2.vx * this.damping;
-          item1.vy = item2.vy * this.damping;
-          item2.vx = tempVx * this.damping;
-          item2.vy = tempVy * this.damping;
+          this.resolveCollision(item1, item2, distance);
         }
       }
-    }
+    });
   }
+  
+  calculateDistance(item1, item2) {
+    const dx = item2.x - item1.x;
+    const dy = item2.y - item1.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  
+  resolveCollision(item1, item2, distance) {
+    const dx = item2.x - item1.x;
+    const dy = item2.y - item1.y;
+  
+    // Hitung sudut dan pemisahan
+    const angle = Math.atan2(dy, dx);
+    const sin = Math.sin(angle);
+    const cos = Math.cos(angle);
+  
+    // Pisahkan item untuk menghindari overlap
+    const overlap = (item1.size + item2.size - distance) / 2;
+    item1.x -= overlap * cos;
+    item1.y -= overlap * sin;
+    item2.x += overlap * cos;
+    item2.y += overlap * sin;
+  
+    // Tukar kecepatan dengan mempertimbangkan damping
+    const tempVx = item1.vx;
+    const tempVy = item1.vy;
+    item1.vx = item2.vx * this.damping;
+    item1.vy = item2.vy * this.damping;
+    item2.vx = tempVx * this.damping;
+    item2.vy = tempVy * this.damping;
+  }
+  
+
 }
 
 export class Magnet extends Images {
