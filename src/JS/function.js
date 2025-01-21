@@ -276,12 +276,13 @@ export class Ahoge extends Images {
   }
 
   handleCollisions() {
+    if (this.item.length < 2) return;
     this.item.forEach((item1, i) => {
       for (let j = i + 1; j < this.item.length; j++) {
         const item2 = this.item[j];
-  
+
         const distance = this.calculateDistance(item1, item2);
-  
+
         // Jika item bertabrakan
         if (distance < item1.size + item2.size) {
           this.resolveCollision(item1, item2, distance);
@@ -289,29 +290,29 @@ export class Ahoge extends Images {
       }
     });
   }
-  
+
   calculateDistance(item1, item2) {
     const dx = item2.x - item1.x;
     const dy = item2.y - item1.y;
     return Math.sqrt(dx * dx + dy * dy);
   }
-  
+
   resolveCollision(item1, item2, distance) {
     const dx = item2.x - item1.x;
     const dy = item2.y - item1.y;
-  
+
     // Hitung sudut dan pemisahan
     const angle = Math.atan2(dy, dx);
     const sin = Math.sin(angle);
     const cos = Math.cos(angle);
-  
+
     // Pisahkan item untuk menghindari overlap
     const overlap = (item1.size + item2.size - distance) / 2;
     item1.x -= overlap * cos;
     item1.y -= overlap * sin;
     item2.x += overlap * cos;
     item2.y += overlap * sin;
-  
+
     // Tukar kecepatan dengan mempertimbangkan damping
     const tempVx = item1.vx;
     const tempVy = item1.vy;
@@ -320,8 +321,35 @@ export class Ahoge extends Images {
     item2.vx = tempVx * this.damping;
     item2.vy = tempVy * this.damping;
   }
-  
 
+  magnetEffect(magnetStatus, magnetX, mangnetY, item, i) {
+    if (!magnetStatus) return;
+
+    // Hitung jarak antara magnet dan ahoge dengan rumus Euclidean distance yang diberi batas minimum
+    let dx = magnetX - item.x;
+    let dy = mangnetY - item.y;
+    let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy));
+
+    // Hitung gaya tarik berdasarkan jarak
+    let force = Math.min(this.baseForce / distance, 0.1);
+    let forceDx = (dx / distance) * force;
+    let forceDy = (dy / distance) * force;
+
+    // let speedMultiplier = Math.max(0.1, 1 - distance / maxDistance); // Mengurangi kecepatan berdasarkan jarak
+
+    // terapkan gaya pada ahoge
+    item.vx += forceDx;
+    item.vy += forceDy;
+    item.vx *= this.damping;
+    item.vy *= this.damping;
+
+    // tandai ahoge jika telah menempel dengan magnet
+    if (distance <= 50) this.markToDelete(i);
+  }
+  markToDelete(index) {
+    if (this.toRemove.includes(index)) return;
+    this.toRemove.push(index);
+  }
 }
 
 export class Magnet extends Images {
@@ -625,7 +653,7 @@ export class Doritos extends Images {
     return Math.sqrt(deltaX ** 2 + deltaY ** 2);
   }
 
-  fillDoritos(ahogeItem, item,index) {
+  fillDoritos(ahogeItem, item, index) {
     if (!this.isDragging && this.full) return; // Jika doritos penuh atau tidak sedang ditarik, keluar
     let distanceDoritos = this.calculateDistance(this, item);
 

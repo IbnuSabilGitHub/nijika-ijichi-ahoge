@@ -37,9 +37,12 @@ Promise.all([
     let currentNijika = nijikaImage1;
     function frameCanvas(timestamp) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw text
       drawText(ctx, "Developed by IBNU with ❤️", 115, 18);
       drawText(ctx, `Ahoge : ${ahoge.item.length}`, 50, 50);
       drawText(ctx, `Doritos : ${doritos.fill}`, 50, 80);
+
       // Gambar nijika
       currentNijika.draw(0, canvas.height - currentNijika.height);
 
@@ -63,40 +66,27 @@ Promise.all([
         magnet.removeAhogeWithDelay(ahoge, timestamp);
       }
 
-      // hanya saat ada ahoge, tangani tabrakan(menggunakan Optinoal Chaining)
-      ahoge.item?.length && ahoge.handleCollisions();
+      // hanya saat ada 2 ahoge, tangani tabrakan(menggunakan Optinoal Chaining)
+      ahoge.handleCollisions();
 
       ahoge.item.forEach((item, i) => {
-        if (magnet.status) {
-          // hitung gaya yang bekerja pada ahoge ()
-          // Hitung jarak antara magnet dan ahoge
-          let dx = magnet.x - item.x;
-          let dy = magnet.y - item.y;
-          // Gunakan rumus euclidean distance untuk menghitung jarak antara magnet dan ahoge
-          let distance = Math.max(50, Math.sqrt(dx * dx + dy * dy));
-          let force = Math.min(ahoge.baseForce / distance, 0.1);
-          let forceDx = (dx / distance) * force;
-          let forceDy = (dy / distance) * force;
-          // let speedMultiplier = Math.max(0.1, 1 - distance / maxDistance); // Mengurangi kecepatan berdasarkan jarak
-          // terapkan gaya pada ahoge
-          item.vx += forceDx;
-          item.vy += forceDy;
-          item.vx *= ahoge.damping;
-          item.vy *= ahoge.damping;
-
-          // tandai ahoge ke berapa yang akan dihapus jika melewati batas jarak
-          if (distance <= 50 && !ahoge.toRemove.includes(i)) {
-            ahoge.toRemove.push(i);
-          }
-        }
-
-        doritos.fillDoritos(ahoge.item, item, i);
-        
+        // update posisi dan rotasi ahoge
         ahoge.updatePosition(item);
+
+        // update rotasi ahoge
         ahoge.updateRotation(item);
+
+        // buat ahoge tetap dalam kanvas
         ahoge.keepWithinCanvas(item);
+
+        // Terapkan efek magnet jika magnet aktif
+        ahoge.magnetEffect(magnet.status, magnet.x, magnet.y, item, i);
+
         // Gambar ahoge
         ahoge.draw(item.x, item.y, item.rotation, item.imgSize, item.imgSize);
+
+        // Terapkan efek doritos saat di drag dan belum full
+        doritos.fillDoritos(ahoge.item, item, i);
       });
 
       doritos.draw(doritos.x, doritos.y, doritos.rotation);
