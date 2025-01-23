@@ -2,11 +2,9 @@ import {
   drawText,
   Images,
   Nijika,
-  getMousePos,
   Ahoge,
   Magnet,
   Doritos,
-  randomRotation,
 } from "./function.js";
 
 const canvas = document.getElementById("canvas");
@@ -120,4 +118,5 @@ Promise.all([
   })
   .catch((error) => {
     console.error("Error loading images:", error);
+    ctx.fillText("Failed to load resources. Please try again later.", 50, 50);
   });
