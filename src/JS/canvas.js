@@ -19,9 +19,8 @@ const ahoge = new Ahoge("/public/assets/image/ahoge.webp");
 const magnet = new Magnet("/public/assets/image/eww_people.png");
 const doritos = new Doritos("/public/assets/image/doritos.webp");
 
-// setup animation ahoge
-ahoge.width = 20;
-ahoge.height = 20;
+
+const MAGNET_SIZE = 150;
 
 Promise.all([
   logo.loadImage(),
@@ -60,7 +59,7 @@ Promise.all([
         magnet.stopMagnetInterval(ahoge);
       }
       if (magnet.status) {
-        magnet.draw(magnet.x, magnet.y, 150, 150);
+        magnet.draw(magnet.x, magnet.y, MAGNET_SIZE, MAGNET_SIZE);
         magnet.removeAhogeWithDelay(ahoge, timestamp);
       }
 
