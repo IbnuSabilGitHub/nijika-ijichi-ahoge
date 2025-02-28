@@ -63,8 +63,6 @@ Promise.all([
         magnet.removeAhogeWithDelay(ahoge, timestamp);
       }
 
-      // magnet.status && magnet.draw(magnet.x, magnet.y, MAGNET_SIZE, MAGNET_SIZE);
-      // magnet.status && magnet.removeAhogeWithDelay(ahoge, timestamp);
       // hanya saat ada 2 ahoge, tangani tabrakan(menggunakan Optinoal Chaining)
       ahoge.handleCollisions();
 

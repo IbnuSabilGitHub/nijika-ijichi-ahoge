@@ -564,7 +564,6 @@ export class Doritos extends Images {
   }
 
   applyGravityAndRotation() {
-    if (this.isDragging) return; // Jika doritos sedang ditarik, keluar
     this.rotation = (this.rotation + this.spin + 360) % 360; // Perbarui rotasi
     this.vy += this.gravity;
     this.y += this.vy;
