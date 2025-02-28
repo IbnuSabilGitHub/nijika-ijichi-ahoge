@@ -1,0 +1,22 @@
+.particle {
+  width: 2rem;
+  height: 2rem;
+  /* background-color: white; */
+  position: absolute;
+  /* border-radius: 50%; */
+}
+
+body,
+html {
+  margin: 0;
+  overflow: hidden;
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
+  /* height: 100vh; */
+  background: #FE98A5;
+}
+
+
+
+

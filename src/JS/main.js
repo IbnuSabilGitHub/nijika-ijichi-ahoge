@@ -1,5 +1,4 @@
 // Array untuk menyimpan semua ahoge
-
 import { drawImage } from "./function.js";
 import { textConfig } from "./function.js";
 import { isInside } from "./function.js";
@@ -13,7 +12,6 @@ canvas.height = window.innerHeight; // leabr kanvas mengikuti tinggi layar
 const eating = new Audio("/public/assets/sound/eating-effect-254996.mp3");
 eating.load();
 // Setting untuk Ahoge flying
-const ahoge = []; // Array untuk menyimpan semua ahoge
 const ahogeCount = 0; // untuk meyimkan jumlah ahoge
 const baseForce = 40; // Mengatur Gaya tarik magnet
 const damping = 0.98; // mengatur peredaman saat mendekati mangnet
@@ -37,14 +35,6 @@ eating.addEventListener("canplaythrough", () => {
   removalInterval = eating.duration * 1000; // Konversi ke milidetik
 });
 
-function randomRotation(min, max) {
-  // Pilih arah rotasi -180 atau 180 derajat
-  const randomRotationDirection = Math.random() > 0.5 ? 1 : -1;
-  // Tentukan kecepatan rotasi berdasarkan rentang (rotasi lambat)
-  const randomRotationSpeed =
-    randomRotationDirection * (Math.random() * (min - max) + max);
-  return randomRotationSpeed;
-}
 
 class Doritos {
   constructor() {
@@ -124,7 +114,7 @@ function createAhoge(x, y) {
     rotation: 0, // Rotasi ahoge
     rotationSpeed: randomRotation(0, 5), // Kecepatan rotasi yang lebih lambat
     radius: Math.random() * 50 + 50, // Jarak untuk rotasi
-    rotatin: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
+    rotationSlowdown: Math.random() * 0.0005 + 0.0001, // Perlamabatan rotasi
   });
 }
 // functioonSlowdown untuk menangani tabrakan
@@ -164,17 +154,9 @@ function handleCollisions() {
   }
 }
 // Function untuk mengatur teks
-function setupText() {
-  ctx.font = textConfig.font;
-  ctx.fillStyle = textConfig.fillStyle;
-  ctx.textAlign = textConfig.textAlign;
-  ctx.textBaseline = textConfig.textBaseline;
-}
+
 // Fungsi untuk menggambar teks di kanvas
-function drawText(text, x, y) {
-  setupText();
-  ctx.fillText(text, x, y);
-}
+
 
 // Fungsi untuk memuat gambar yang mengembalikan Promise
 function loadImage(src) {
@@ -187,6 +169,7 @@ function loadImage(src) {
 }
 
 const ryo = {
+  src: ["/public/assets/image/ryo_chibi.png","/public/assets/image/ryo_chibi_dragging.png"],
   x: canvas.width,
   y: canvas.height - 95,
   animationStatus: false,
@@ -219,10 +202,7 @@ const nijikaImageSrcs = [
 const logoImageSrc = "/public/assets/image/Kessoku_Band_Logo.svg";
 const magnetImageSrc = "/public/assets/image/eww_people.png";
 const doritosImageSrc = "/public/assets/image/doritos.webp";
-const ryoChibiSrc = [
-  "/public/assets/image/ryo_chibi.png",
-  "/public/assets/image/ryo_chibi_dragging.png",
-];
+
 
 // Muat semua gambar sekaligus
 Promise.all([
@@ -232,8 +212,8 @@ Promise.all([
   loadImage(nijikaImageSrcs[1]),
   loadImage(logoImageSrc),
   loadImage(magnetImageSrc),
-  loadImage(ryoChibiSrc[0]),
-  loadImage(ryoChibiSrc[1]),
+  loadImage(ryo.src[0]),
+  loadImage(ryo.src[1]),
 ])
   .then((images) => {
     // Setelah semua gambar dimuat, akses masing-masing gambar dari array `images`
@@ -445,7 +425,7 @@ Promise.all([
         // Tambahkan gravitasi ke kecepatan y
         // Perbarui posisi bola
 
-        // Pantulan jika bola mencapai dasar canvas
+        // Pantulan jika doritos mencapai dasar canvas
         if (doritos.y + doritos.height > canvas.height) {
           doritos.y = canvas.height - doritos.height / 2; // Atur posisi doritos
           doritos.vy *= -doritos.bounce; // Pantulkan doritos
@@ -459,30 +439,7 @@ Promise.all([
           }
         }
 
-        if (doritos.isOnGround) {
-          // Sesuaikan rotasi dengan penyesuaian bertahap
-          if (doritos.rotation >= 0 && doritos.rotation < 45) {
-            // Menyesuaikan dengan penurunan bertahap menuju 0°
-            doritos.rotation -= 2;
-            if (doritos.rotation <= 0) doritos.rotation = 0;
-          } else if (doritos.rotation >= 45 && doritos.rotation < 135) {
-            // Menyesuaikan dengan penambahan bertahap menuju 90°
-            doritos.rotation += 2;
-            if (doritos.rotation >= 90) doritos.rotation = 90;
-          } else if (doritos.rotation >= 135 && doritos.rotation < 225) {
-            // Menyesuaikan dengan penambahan bertahap menuju 180°
-            doritos.rotation += 2;
-            if (doritos.rotation >= 180) doritos.rotation = 180;
-          } else if (doritos.rotation >= 225 && doritos.rotation < 315) {
-            // Menyesuaikan dengan penambahan bertahap menuju 270°
-            doritos.rotation += 2;
-            if (doritos.rotation >= 270) doritos.rotation = 270;
-          } else {
-            // Menyesuaikan dengan penurunan bertahap menuju 0°
-            doritos.rotation -= 2;
-            if (doritos.rotation <= 0) doritos.rotation = 0;
-          }
-        }
+
       }
 
       ryo.animationStatus = ahoge.length > 10;
